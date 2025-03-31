@@ -9,5 +9,7 @@
         public DateTimeOffset Created { get; set; }
 
         public required string Password { get; set; } 
+
+        public bool ForcePasswordReset { get; set; } = false;
     }
 }

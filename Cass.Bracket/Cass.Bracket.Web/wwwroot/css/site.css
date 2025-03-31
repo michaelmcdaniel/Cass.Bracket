@@ -20,18 +20,103 @@ html .link {
   cursor: pointer;
   text-decoration: underline;
 }
-html input {
-  margin: 3px 5px;
-}
-html label {
-  display: inline-block;
-  text-align: right;
-}
 html button {
   margin-top: 10px;
   padding: 2px 8px;
   font-size: 1.4em;
   cursor: pointer;
+}
+html button[disabled] {
+  cursor: default;
+}
+html .page-login {
+  background: #3c2809;
+}
+html .login {
+  justify-content: center;
+  align-items: center;
+  margin: 0px auto;
+  display: flex;
+  min-height: 100vh;
+  color: #fff;
+}
+html .login .container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+html .login .logo {
+  max-height: 650px;
+  height: 90vh;
+  margin-right: 20px;
+}
+html .login .form {
+  display: flex;
+  flex-direction: column;
+  max-height: 650px;
+  height: 90vh;
+  padding-top: 20px;
+}
+html .login .form label,
+html .login .form button,
+html .login .form input {
+  font-size: 1.4em;
+  margin-top: 4px;
+}
+html .login .form input[type=checkbox] {
+  margin-left: 10px;
+}
+html .login .form .subrem {
+  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+html .login .form .subrem label {
+  display: flex;
+}
+html .login .form .subrem .remember {
+  font-size: 0.8em;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-content: center;
+}
+html .login .form .action {
+  margin-top: 20px;
+  text-decoration: none;
+}
+html .login .form .error {
+  display: block;
+  width: 100%;
+  padding: 20px 5px 10px 5px;
+  text-align: left;
+  font-weight: normal;
+  font-size: 1.25em;
+}
+html nav {
+  margin: 0;
+  padding: 4px 8px;
+  background-color: #216fdf;
+  color: #fff;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+html nav a,
+html nav a:visited,
+html nav a:active {
+  display: inline-block;
+  margin: 2px 4px;
+  color: #fff;
+  text-decoration: none;
+}
+html nav a:hover,
+html nav a:visited:hover,
+html nav a:active:hover {
+  text-decoration: underline;
 }
 html.dark {
   /* COLORS */
@@ -44,16 +129,106 @@ html.dark .link {
   cursor: pointer;
   text-decoration: underline;
 }
-html.dark input {
-  margin: 3px 5px;
-}
-html.dark label {
-  display: inline-block;
-  text-align: right;
-}
 html.dark button {
   margin-top: 10px;
   padding: 2px 8px;
   font-size: 1.4em;
   cursor: pointer;
+}
+html.dark button[disabled] {
+  cursor: default;
+}
+html.dark .page-login {
+  background: #3c2809;
+}
+html.dark .login {
+  justify-content: center;
+  align-items: center;
+  margin: 0px auto;
+  display: flex;
+  min-height: 100vh;
+  color: #fff;
+}
+html.dark .login .container {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-start;
+}
+html.dark .login .logo {
+  max-height: 650px;
+  height: 90vh;
+  margin-right: 20px;
+}
+html.dark .login .form {
+  display: flex;
+  flex-direction: column;
+  max-height: 650px;
+  height: 90vh;
+  padding-top: 20px;
+}
+html.dark .login .form label,
+html.dark .login .form button,
+html.dark .login .form input {
+  font-size: 1.4em;
+  margin-top: 4px;
+}
+html.dark .login .form input[type=checkbox] {
+  margin-left: 10px;
+}
+html.dark .login .form .subrem {
+  display: block;
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+html.dark .login .form .subrem label {
+  display: flex;
+}
+html.dark .login .form .subrem .remember {
+  font-size: 0.8em;
+  padding-top: 4px;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  align-content: center;
+}
+html.dark .login .form .action {
+  margin-top: 20px;
+  text-decoration: none;
+}
+html.dark .login .form .error {
+  display: block;
+  width: 100%;
+  padding: 20px 5px 10px 5px;
+  text-align: left;
+  font-weight: normal;
+  font-size: 1.25em;
+}
+html.dark nav {
+  margin: 0;
+  padding: 4px 8px;
+  background-color: #173867;
+  color: #f2f2f2;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
+html.dark nav a,
+html.dark nav a:visited,
+html.dark nav a:active {
+  display: inline-block;
+  margin: 2px 4px;
+  color: #f2f2f2;
+  text-decoration: none;
+}
+html.dark nav a:hover,
+html.dark nav a:visited:hover,
+html.dark nav a:active:hover {
+  text-decoration: underline;
+}
+@media screen and (max-width: 776px) {
+  html .login .container {
+    flex-direction: column;
+  }
 }

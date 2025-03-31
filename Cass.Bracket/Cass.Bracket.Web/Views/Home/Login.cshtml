@@ -1,0 +1,43 @@
+﻿@{
+	ViewData["Title"] = "Login";
+	ViewData["page"] = "login";
+	var redirect = Context.Request.Query["RedirectUri"];
+	if (string.IsNullOrWhiteSpace(redirect)) redirect = "/";
+
+}
+
+<div class="login">
+	<div class="container">
+		<img src="/img/cass-bracketoloy.jpg" class="logo" />
+		<div class="form">
+			<div><input v-if="create" type="text" placeholder="Your Name" v-model="name" /></div>
+			<div><input type="text" placeholder="Your Email" v-model="username" /></div>
+			<div><input type="password" placeholder="Your Password" v-model="password" /></div>
+			<div class="subrem">
+				<button :disabled="!isValid" v-on:click="submit">{{submitText}}</button>
+				<div class="remember"><label>Remember Me</label><input type="checkbox" v-model="rememberMe" /></div>
+			</div>
+			<div v-if="error"><span class="error">{{error}}</span></div>
+			<div class="action">
+				<div v-if="!create" class="link" v-on:click="create=true">Register</div>
+				<div v-if="create" class="link" v-on:click="create=false">Sign in</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	<script type="text/javascript">
+		window.page = {
+			model: {
+				username:'',
+				password:'',
+				rememberMe:true,
+				name: '',
+				create: false,
+				redirect: '@(redirect)'
+			}
+		};
+	</script>
+	<script src="~/js/page.login.js" asp-append-version="true"></script>
+}

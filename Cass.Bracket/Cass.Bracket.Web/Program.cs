@@ -1,3 +1,6 @@
+using Cass.Bracket.Web;
+using Microsoft.AspNetCore.Authentication.Cookies;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
@@ -6,7 +9,20 @@ var mvcBuilder = builder.Services.AddControllersWithViews();
     mvcBuilder.AddRazorRuntimeCompilation();
 #endif 
 
-var app = builder.Build();
+builder.Services.Configure<UserManager.Options>(options => {
+    options.ConnectionString = builder.Configuration.GetValue<string>("connection-string")!;
+    options.Timeout = TimeSpan.FromSeconds(builder.Configuration.GetValue<int>("connection-timeout-in-seconds", (int)options.Timeout.TotalSeconds));
+});
+builder.Services.AddTransient<UserManager>();
+
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.LoginPath = "/home/login";
+        options.LogoutPath = "/home/logout";
+    });
+
+    var app = builder.Build();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -19,10 +35,12 @@ if (!app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseRouting();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapStaticAssets();
 
+app.MapControllers();
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}")

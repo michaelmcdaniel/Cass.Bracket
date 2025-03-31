@@ -6,11 +6,53 @@ body { margin:0; padding:0; font:normal 100% arial; }
 
 @htmlImports: {
 	body { background-color: @theme-page-background-color; color:@theme-page-section-color; }
-
+    
     .link { cursor: pointer; text-decoration:underline; }
-    input { margin: 3px 5px; }
-    label { display: inline-block; text-align: right; }
-    button { margin-top: 10px; padding: 2px 8px; font-size: 1.4em; cursor: pointer; }
+    button { margin-top: 10px; padding: 2px 8px; font-size: 1.4em;  cursor: pointer; }
+    button[disabled] { cursor: default; }
+    .page-login {
+        background: #3c2809; 
+    }
+    .login {
+        display:flex; justify-content:center;
+        align-items:center; 
+        .container {
+            display:flex; flex-direction: row; justify-content: flex-start;
+        }
+        margin:0px auto;
+        display:flex; min-height: 100vh; 
+        color:#fff; 
+        .logo { max-height: 650px;  height: 90vh; margin-right: 20px;}
+        
+        .form { 
+            label, button, input { font-size:1.4em; margin-top: 4px; }
+                        display:flex; 
+            flex-direction: column;
+            max-height: 650px;  height: 90vh;
+            padding-top: 20px;
+            input[type=checkbox] { margin-left: 10px; }
+            .subrem { 
+                display: block;
+                display:flex; flex-direction: row; align-items: center; justify-content: space-between;
+                label { display: flex; }
+                .remember { font-size: 0.8em; padding-top: 4px; display:flex; flex-direction: row; justify-content: flex-end; align-content: center; }
+            }
+            
+            .action { margin-top: 20px; text-decoration: none; }
+            .error { display: block; width: 100%; padding: 20px 5px 10px 5px; text-align: left; font-weight: normal; font-size: 1.25em; }
+        }
+    }
+    nav {
+        margin:0; padding: 4px 8px; background-color: @theme-nav-background-color;
+        color:@theme-nav-color;
+        display:flex; flex-direction: row;
+        justify-content:space-between;
+        a, a:visited, a:active { 
+           display: inline-block; margin: 2px 4px; color: @theme-nav-color; text-decoration: none; 
+           &:hover { text-decoration: underline; }
+        }
+        
+    }
 }
 
 html {
@@ -20,4 +62,10 @@ html {
 html.dark {
     @import "theme.dark.less";
     @htmlImports();
+}
+
+@media screen and (max-width:776px) {
+    html .login .container {
+        flex-direction: column;
+    }
 }

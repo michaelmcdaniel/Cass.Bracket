@@ -15,9 +15,20 @@
 	</environment>
 	<script type="text/javascript" src="~/js/component.registration.js" asp-append-version="true"></script>
 </head>
-<body>
+<body class="page-@ViewData["page"]">
     <header>
+		@if (User.Identity?.IsAuthenticated??false)
+		{
+			<nav>
+				<div class="left">
+					<a href="~/">Backets</a>
 
+				</div>
+				<div class="right">
+					<a href="~/logout">Logout</a>
+				</div>
+			</nav>
+		}
     </header>
     <div id="vueRoot">
 		@RenderBody()

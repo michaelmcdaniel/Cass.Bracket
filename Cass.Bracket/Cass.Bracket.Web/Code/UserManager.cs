@@ -4,7 +4,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Options;
 using System.Security.Cryptography;
 
-namespace Cass.Bracket.Web.Code
+namespace Cass.Bracket.Web
 {
     public class UserManager(IOptions<UserManager.Options> _options)
     {
@@ -15,7 +15,7 @@ namespace Cass.Bracket.Web.Code
             {
                 if (Get(user.Email) != null) { throw new UsernameTakenException();  }
                 
-                ConnectionFactory.Execute(Commands.Insert<long>((id) => user.Id = id, "BracketUser", "@user_id",
+                ConnectionFactory.Execute(Commands.Insert<int>((id) => user.Id = id, "BracketUser", "@user_id",
                     new SqlParameter("@user_Name", user.Name),
                     new SqlParameter("@user_email", user.Email),
                     new SqlParameter("@user_password", hasher.HashPassword(user, user.Password))), _options.Value.ConnectionString);
@@ -35,7 +35,7 @@ namespace Cass.Bracket.Web.Code
             ConnectionFactory.Execute(new CommandReader((r) => {
                 retVal = new Models.User()
                 {
-                    Id = r.GetInt64(0),
+                    Id = r.GetInt32(0),
                     Email = r.GetString(1),
                     Name = r.GetString(2),
                     Password = r.GetString(3),
@@ -47,13 +47,15 @@ namespace Cass.Bracket.Web.Code
             return retVal;
         }
 
-        public PasswordVerificationResult Signin(string username, string password)
+        public Models.User? Signin(string username, string password)
         {
             var user = Get(username);
-            if (user == null) { return PasswordVerificationResult.Failed; }
+            if (user == null) { return null; }
             
             var hasher = new Microsoft.AspNetCore.Identity.PasswordHasher<Models.User>();
-            return hasher.VerifyHashedPassword(user, user.Password, password);
+            var result = hasher.VerifyHashedPassword(user, user.Password, password);
+            if (result == PasswordVerificationResult.Failed) return null;
+            return user;
         }
 
         public class Options
