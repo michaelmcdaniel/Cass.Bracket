@@ -1,0 +1,17 @@
+{
+  "version": "3.0",
+  "defaultProvider": "cdnjs",
+  "libraries": [
+    {
+      "library": "vue@3.5.13",
+      "destination": "wwwroot/lib/vue/",
+      "files": [
+        "vue.cjs.js",
+        "vue.global.prod.min.js",
+        "vue.global.prod.js",
+        "vue.global.min.js",
+        "vue.global.js"
+      ]
+    }
+  ]
+}

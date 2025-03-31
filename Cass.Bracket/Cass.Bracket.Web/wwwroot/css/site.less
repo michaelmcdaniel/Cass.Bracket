@@ -1,0 +1,23 @@
+@import "common.less";
+@import "theme.light.less";
+
+body { margin:0; padding:0; font:normal 100% arial; }
+[v-cloak] { display: none; }
+
+@htmlImports: {
+	body { background-color: @theme-page-background-color; color:@theme-page-section-color; }
+
+    .link { cursor: pointer; text-decoration:underline; }
+    input { margin: 3px 5px; }
+    label { display: inline-block; text-align: right; }
+    button { margin-top: 10px; padding: 2px 8px; font-size: 1.4em; cursor: pointer; }
+}
+
+html {
+    @htmlImports();
+}
+
+html.dark {
+    @import "theme.dark.less";
+    @htmlImports();
+}

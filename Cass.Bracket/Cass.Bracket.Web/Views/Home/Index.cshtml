@@ -1,0 +1,36 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+	<table>
+		<tr><td><label>Username</label></td><td><input type="text" v-model="username" /></td></tr>
+		<tr v-if="create"><td><label>Name</label></td><td><input type="text" v-model="name" /></td></tr>
+		<tr><td><label>Password</label></td><td><input type="password" v-model="password" /></td></tr>
+		<tr><td></td><td><label>Remember Me</label><input type="checkbox" v-model="rememberMe" /></td></tr>
+		<tr><td></td><td><button v-on:click="submit">{{submitText}}</button></td></tr>
+		<tr>
+			<td></td>
+			<td>
+				<div v-if="!create" class="link" v-on:click="create=true">Register</div>
+				<div v-if="create" class="link" v-on:click="create=false">Sign in</div>
+			</td>
+		</tr>
+	</table>
+</div>
+
+@section Scripts {
+	<script type="text/javascript">
+		window.page = {
+			model: {
+				username:'',
+				password:'',
+				rememberMe:true,
+				name: '',
+				create: false,
+				redirect: '/'
+			}
+		};
+	</script>
+	<script src="~/js/page.home.js"></script>
+}
