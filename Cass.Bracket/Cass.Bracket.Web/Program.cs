@@ -18,8 +18,8 @@ builder.Services.AddTransient<UserManager>();
 builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
     .AddCookie(options =>
     {
-        options.LoginPath = "/home/login";
-        options.LogoutPath = "/home/logout";
+        options.LoginPath = "/login";
+        options.LogoutPath = "/logout";
     });
 
     var app = builder.Build();

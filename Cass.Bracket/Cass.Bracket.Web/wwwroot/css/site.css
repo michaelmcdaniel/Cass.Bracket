@@ -16,55 +16,128 @@ html body {
   background-color: #ffffff;
   color: black;
 }
-html .link {
+html .page-login {
+  background: #271a06;
+}
+html .page-login .link {
   cursor: pointer;
   text-decoration: underline;
 }
-html button {
+html .page-login button {
   margin-top: 10px;
   padding: 2px 8px;
   font-size: 1.4em;
   cursor: pointer;
 }
-html button[disabled] {
+html .page-login button[disabled] {
   cursor: default;
-}
-html .page-login {
-  background: #3c2809;
 }
 html .login {
   justify-content: center;
   align-items: center;
+  width: 375px;
   margin: 0px auto;
   display: flex;
   min-height: 100vh;
   color: #fff;
 }
 html .login .container {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  background: url(../img/border-bottom.800.png) no-repeat bottom left, url(../img/bracketology-background.800.jpg) no-repeat top left;
+  background-size: 375px;
+  width: 375px;
+  position: relative;
+  max-height: 744px;
+  height: 99vh;
+  min-height: 640px;
 }
-html .login .logo {
-  max-height: 650px;
-  height: 90vh;
-  margin-right: 20px;
+html .login .cass {
+  position: absolute;
+  bottom: -3px;
+  width: 375px;
+  left: 0px;
+  z-index: 1;
+}
+html .login .cassmouth {
+  position: absolute;
+  bottom: 203px;
+  width: 46px;
+  z-index: 2;
+  left: 165px;
 }
 html .login .form {
+  z-index: 100;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  max-height: 650px;
-  height: 90vh;
-  padding-top: 20px;
+  max-height: 744px;
+  height: 99vh;
+  min-height: 640px;
+  padding-top: 170px;
 }
 html .login .form label,
 html .login .form button,
 html .login .form input {
-  font-size: 1.4em;
+  font-size: 1.1em;
   margin-top: 4px;
 }
 html .login .form input[type=checkbox] {
   margin-left: 10px;
+}
+html .login .form input[type=text],
+html .login .form input[type=password] {
+  border-radius: 5px;
+  border: 1px solid #3c2809;
+  padding: 3px 6px;
+}
+html .login .form button.submit {
+  margin: 0;
+  margin-left: -5px;
+  position: absolute;
+  bottom: 70px;
+  font-size: 2em;
+  border: 0;
+  height: 108px;
+  width: 110px;
+  border-radius: 50%;
+  display: block;
+  background-color: transparent;
+  color: #000;
+  font-weight: bold;
+  font-size: 26px;
+  transition: all ease-in 0.2s;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  cursor: pointer;
+  text-shadow: 0px 2px 6px #ffd800;
+}
+html .login .form button.submit:hover,
+html .login .form button.submit:active {
+  color: #ffd800;
+  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.8);
+  transition: all ease-in 0.2s;
+}
+html .login .form button.submit[disabled] {
+  cursor: default;
+  color: rgba(0, 0, 0, 0.3);
+  text-shadow: 0px 4px 4px transparent;
+}
+html .login .form .action {
+  position: absolute;
+  right: 22px;
+  bottom: 15px;
+}
+html .login .form .remember {
+  margin-top: 6px;
+}
+html .login .form .remember label,
+html .login .form .remember input {
+  cursor: pointer;
 }
 html .login .form .subrem {
   display: block;
@@ -76,17 +149,11 @@ html .login .form .subrem {
 html .login .form .subrem label {
   display: flex;
 }
-html .login .form .subrem .remember {
-  font-size: 0.8em;
-  padding-top: 4px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-content: center;
-}
-html .login .form .action {
-  margin-top: 20px;
+html .login .form .action .link {
   text-decoration: none;
+}
+html .login .form .action .link:hover {
+  text-decoration: underline;
 }
 html .login .form .error {
   display: block;
@@ -96,7 +163,7 @@ html .login .form .error {
   font-weight: normal;
   font-size: 1.25em;
 }
-html nav {
+html nav.main {
   margin: 0;
   padding: 4px 8px;
   background-color: #216fdf;
@@ -105,18 +172,39 @@ html nav {
   flex-direction: row;
   justify-content: space-between;
 }
-html nav a,
-html nav a:visited,
-html nav a:active {
+html nav.main a,
+html nav.main a:visited,
+html nav.main a:active {
   display: inline-block;
   margin: 2px 4px;
   color: #fff;
   text-decoration: none;
 }
-html nav a:hover,
-html nav a:visited:hover,
-html nav a:active:hover {
+html nav.main a:hover,
+html nav.main a:visited:hover,
+html nav.main a:active:hover {
   text-decoration: underline;
+}
+html nav.actions {
+  margin-bottom: 10px;
+}
+html nav.actions button {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+html .page-new-bracket .page-container {
+  width: calc(100vw - 40px);
+  min-width: 400px;
+  max-width: 800px;
+  margin: 10px auto;
+  padding: 0px 20px;
+}
+html .page-new-bracket input,
+html .page-new-bracket textarea {
+  width: 100%;
+}
+html .page-new-bracket textarea {
+  resize: vertical;
 }
 html.dark {
   /* COLORS */
@@ -125,55 +213,128 @@ html.dark body {
   background-color: #ffffff;
   color: black;
 }
-html.dark .link {
+html.dark .page-login {
+  background: #271a06;
+}
+html.dark .page-login .link {
   cursor: pointer;
   text-decoration: underline;
 }
-html.dark button {
+html.dark .page-login button {
   margin-top: 10px;
   padding: 2px 8px;
   font-size: 1.4em;
   cursor: pointer;
 }
-html.dark button[disabled] {
+html.dark .page-login button[disabled] {
   cursor: default;
-}
-html.dark .page-login {
-  background: #3c2809;
 }
 html.dark .login {
   justify-content: center;
   align-items: center;
+  width: 375px;
   margin: 0px auto;
   display: flex;
   min-height: 100vh;
   color: #fff;
 }
 html.dark .login .container {
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-start;
+  background: url(../img/border-bottom.800.png) no-repeat bottom left, url(../img/bracketology-background.800.jpg) no-repeat top left;
+  background-size: 375px;
+  width: 375px;
+  position: relative;
+  max-height: 744px;
+  height: 99vh;
+  min-height: 640px;
 }
-html.dark .login .logo {
-  max-height: 650px;
-  height: 90vh;
-  margin-right: 20px;
+html.dark .login .cass {
+  position: absolute;
+  bottom: -3px;
+  width: 375px;
+  left: 0px;
+  z-index: 1;
+}
+html.dark .login .cassmouth {
+  position: absolute;
+  bottom: 203px;
+  width: 46px;
+  z-index: 2;
+  left: 165px;
 }
 html.dark .login .form {
+  z-index: 100;
+  position: absolute;
+  top: 0px;
+  left: 0px;
+  right: 0px;
+  bottom: 0px;
+  justify-content: flex-start;
+  align-items: center;
+  box-sizing: border-box;
   display: flex;
   flex-direction: column;
-  max-height: 650px;
-  height: 90vh;
-  padding-top: 20px;
+  max-height: 744px;
+  height: 99vh;
+  min-height: 640px;
+  padding-top: 170px;
 }
 html.dark .login .form label,
 html.dark .login .form button,
 html.dark .login .form input {
-  font-size: 1.4em;
+  font-size: 1.1em;
   margin-top: 4px;
 }
 html.dark .login .form input[type=checkbox] {
   margin-left: 10px;
+}
+html.dark .login .form input[type=text],
+html.dark .login .form input[type=password] {
+  border-radius: 5px;
+  border: 1px solid #3c2809;
+  padding: 3px 6px;
+}
+html.dark .login .form button.submit {
+  margin: 0;
+  margin-left: -5px;
+  position: absolute;
+  bottom: 70px;
+  font-size: 2em;
+  border: 0;
+  height: 108px;
+  width: 110px;
+  border-radius: 50%;
+  display: block;
+  background-color: transparent;
+  color: #000;
+  font-weight: bold;
+  font-size: 26px;
+  transition: all ease-in 0.2s;
+  font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+  cursor: pointer;
+  text-shadow: 0px 2px 6px #ffd800;
+}
+html.dark .login .form button.submit:hover,
+html.dark .login .form button.submit:active {
+  color: #ffd800;
+  text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.8);
+  transition: all ease-in 0.2s;
+}
+html.dark .login .form button.submit[disabled] {
+  cursor: default;
+  color: rgba(0, 0, 0, 0.3);
+  text-shadow: 0px 4px 4px transparent;
+}
+html.dark .login .form .action {
+  position: absolute;
+  right: 22px;
+  bottom: 15px;
+}
+html.dark .login .form .remember {
+  margin-top: 6px;
+}
+html.dark .login .form .remember label,
+html.dark .login .form .remember input {
+  cursor: pointer;
 }
 html.dark .login .form .subrem {
   display: block;
@@ -185,17 +346,11 @@ html.dark .login .form .subrem {
 html.dark .login .form .subrem label {
   display: flex;
 }
-html.dark .login .form .subrem .remember {
-  font-size: 0.8em;
-  padding-top: 4px;
-  display: flex;
-  flex-direction: row;
-  justify-content: flex-end;
-  align-content: center;
-}
-html.dark .login .form .action {
-  margin-top: 20px;
+html.dark .login .form .action .link {
   text-decoration: none;
+}
+html.dark .login .form .action .link:hover {
+  text-decoration: underline;
 }
 html.dark .login .form .error {
   display: block;
@@ -205,7 +360,7 @@ html.dark .login .form .error {
   font-weight: normal;
   font-size: 1.25em;
 }
-html.dark nav {
+html.dark nav.main {
   margin: 0;
   padding: 4px 8px;
   background-color: #173867;
@@ -214,18 +369,39 @@ html.dark nav {
   flex-direction: row;
   justify-content: space-between;
 }
-html.dark nav a,
-html.dark nav a:visited,
-html.dark nav a:active {
+html.dark nav.main a,
+html.dark nav.main a:visited,
+html.dark nav.main a:active {
   display: inline-block;
   margin: 2px 4px;
   color: #f2f2f2;
   text-decoration: none;
 }
-html.dark nav a:hover,
-html.dark nav a:visited:hover,
-html.dark nav a:active:hover {
+html.dark nav.main a:hover,
+html.dark nav.main a:visited:hover,
+html.dark nav.main a:active:hover {
   text-decoration: underline;
+}
+html.dark nav.actions {
+  margin-bottom: 10px;
+}
+html.dark nav.actions button {
+  padding: 4px 8px;
+  cursor: pointer;
+}
+html.dark .page-new-bracket .page-container {
+  width: calc(100vw - 40px);
+  min-width: 400px;
+  max-width: 800px;
+  margin: 10px auto;
+  padding: 0px 20px;
+}
+html.dark .page-new-bracket input,
+html.dark .page-new-bracket textarea {
+  width: 100%;
+}
+html.dark .page-new-bracket textarea {
+  resize: vertical;
 }
 @media screen and (max-width: 776px) {
   html .login .container {

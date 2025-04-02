@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no" />
     <title>@ViewData["Title"] - Cass's Bracketology</title>
     <script type="importmap"></script>
 	<environment include="development">
@@ -16,24 +16,27 @@
 	<script type="text/javascript" src="~/js/component.registration.js" asp-append-version="true"></script>
 </head>
 <body class="page-@ViewData["page"]">
-    <header>
-		@if (User.Identity?.IsAuthenticated??false)
-		{
-			<nav>
-				<div class="left">
-					<a href="~/">Backets</a>
-
-				</div>
-				<div class="right">
-					<a href="~/logout">Logout</a>
-				</div>
-			</nav>
-		}
-    </header>
-    <div id="vueRoot">
-		@RenderBody()
-    </div>
-
+	<div id="vueRoot">
+		<header>
+			@if (User.Identity?.IsAuthenticated??false)
+			{
+				<nav class="main">
+					<div class="left">
+						<a href="~/">Home</a>
+					</div>
+					<div class="right">
+						<a href="~/logout">Logout</a>
+					</div>
+				</nav>
+				<nav class="actions">
+					@RenderSection("Actions", false)
+				</nav>
+			}
+		</header>
+		<div>
+			@RenderBody()
+		</div>
+	</div>
     @await RenderSectionAsync("Scripts", required: false)
 	<script src="~/js/core.js" asp-append-version="true"></script>
 </body>

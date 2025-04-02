@@ -19,19 +19,19 @@ namespace Cass.Bracket.Web.Controllers
 
         public IActionResult Index()
         {
-            if (!(User.Identity?.IsAuthenticated??false)) return RedirectToAction("Login");
+            if (!(User.Identity?.IsAuthenticated??false)) return Redirect("/login");
             return View();
         }
 
         [AllowAnonymous]
-        //[Route("/login")]
+        [Route("/login")]
         public IActionResult Login()
         {
             return View();
         }
 
         [AllowAnonymous]
-        //[Route("/logout")]
+        [Route("/logout")]
         public IActionResult Logout()
         {
             return new SignOutResult(CookieAuthenticationDefaults.AuthenticationScheme, new Microsoft.AspNetCore.Authentication.AuthenticationProperties() {  RedirectUri = "/"});

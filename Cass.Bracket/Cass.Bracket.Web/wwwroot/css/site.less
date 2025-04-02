@@ -4,53 +4,86 @@
 body { margin:0; padding:0; font:normal 100% arial; }
 [v-cloak] { display: none; }
 
-@htmlImports: {
-	body { background-color: @theme-page-background-color; color:@theme-page-section-color; }
-    
-    .link { cursor: pointer; text-decoration:underline; }
-    button { margin-top: 10px; padding: 2px 8px; font-size: 1.4em;  cursor: pointer; }
-    button[disabled] { cursor: default; }
-    .page-login {
-        background: #3c2809; 
+@htmlImports:
+{
+    body { background-color: @theme-page-background-color; color: @theme-page-section-color; }
+
+    .page-login { background: #271a06; 
+
+        .link { cursor: pointer; text-decoration: underline; }
+        button { margin-top: 10px; padding: 2px 8px; font-size: 1.4em; cursor: pointer; }
+        button[disabled] { cursor: default; }
+
     }
-    .login {
-        display:flex; justify-content:center;
-        align-items:center; 
-        .container {
-            display:flex; flex-direction: row; justify-content: flex-start;
+    .login { display: flex; justify-content: center; align-items: center;
+        width: 375px;
+        .container { 
+            background: url(../img/border-bottom.800.png) no-repeat bottom left, url(../img/bracketology-background.800.jpg) no-repeat top left;
+            background-size: 375px;
+            width: 375px;
+            position: relative;
+            max-height: 744px; height: 99vh; min-height: 640px; 
         }
-        margin:0px auto;
-        display:flex; min-height: 100vh; 
-        color:#fff; 
-        .logo { max-height: 650px;  height: 90vh; margin-right: 20px;}
-        
-        .form { 
-            label, button, input { font-size:1.4em; margin-top: 4px; }
-                        display:flex; 
-            flex-direction: column;
-            max-height: 650px;  height: 90vh;
-            padding-top: 20px;
+
+        margin: 0px auto; display: flex; min-height: 100vh; color: #fff;
+        .cass { position: absolute; bottom:-3px; width: 375px; left:0px; z-index: 1; }
+        .cassmouth { position:absolute; bottom: 203px; width:46px; z-index: 2; left: 165px;  }
+        .form {
+            z-index: 100;
+            position: absolute; top: 0px; left:0px; right: 0px; bottom: 0px; 
+            label, button, input { font-size: 1.1em; margin-top: 4px; }
+            justify-content: flex-start; align-items: center;
+            box-sizing:border-box;
+            display: flex; flex-direction: column; max-height: 744px; height: 99vh; min-height: 640px; padding-top: 170px;
             input[type=checkbox] { margin-left: 10px; }
-            .subrem { 
-                display: block;
-                display:flex; flex-direction: row; align-items: center; justify-content: space-between;
-                label { display: flex; }
-                .remember { font-size: 0.8em; padding-top: 4px; display:flex; flex-direction: row; justify-content: flex-end; align-content: center; }
+            input[type=text], input[type=password] { border-radius: 5px; border: 1px solid #3c2809; padding: 3px 6px; }
+            button.submit { 
+                margin: 0; margin-left: -5px;
+                position: absolute; bottom: 70px; font-size: 2.0em; border: 0; height: 108px; width: 110px; border-radius: 50%; display: block;background-color: transparent;
+                color:#000;
+                font-weight: bold; font-size:26px;
+                transition: all ease-in 0.2s;
+                font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
+                cursor:pointer;
+                text-shadow: 0px 2px 6px #ffd800;
             }
-            
-            .action { margin-top: 20px; text-decoration: none; }
+            button.submit:hover, button.submit:active {
+                color:#ffd800;
+                text-shadow: 0px 0px 6px rgba(0,0,0,0.8);
+                transition: all ease-in 0.2s;
+            }
+            button.submit[disabled] {
+                cursor: default; color: rgba(0,0,0,0.3);
+                text-shadow: 0px 4px 4px transparent;
+            }
+            .action { position: absolute; right: 22px; bottom: 15px; }
+            .remember { margin-top: 6px;
+                label, input { cursor: pointer; }
+            }
+            .subrem { display: block; display: flex; flex-direction: row; align-items: center; justify-content: space-between;
+                label { display: flex; }
+                
+            }
+
+
+            .action .link { text-decoration: none; }
+            .action .link:hover { text-decoration: underline; }
             .error { display: block; width: 100%; padding: 20px 5px 10px 5px; text-align: left; font-weight: normal; font-size: 1.25em; }
         }
     }
-    nav {
-        margin:0; padding: 4px 8px; background-color: @theme-nav-background-color;
-        color:@theme-nav-color;
-        display:flex; flex-direction: row;
-        justify-content:space-between;
-        a, a:visited, a:active { 
-           display: inline-block; margin: 2px 4px; color: @theme-nav-color; text-decoration: none; 
-           &:hover { text-decoration: underline; }
+    nav.main { margin: 0; padding: 4px 8px; background-color: @theme-nav-background-color; color: @theme-nav-color; display: flex; flex-direction: row; justify-content: space-between;
+        a, a:visited, a:active { display: inline-block; margin: 2px 4px; color: @theme-nav-color; text-decoration: none;
+            &:hover { text-decoration: underline; }
         }
+    }
+    nav.actions { margin-bottom: 10px;
+            button { padding: 4px 8px; cursor: pointer; }
+        }
+
+    .page-new-bracket {
+        .page-container { width: calc(100vw - 40px); min-width: 400px; max-width: 800px; margin: 10px auto; padding: 0px 20px; }
+        input, textarea { width: 100%; }
+        textarea { resize: vertical; }
         
     }
 }
