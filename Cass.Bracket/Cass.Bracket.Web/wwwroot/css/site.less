@@ -4,6 +4,12 @@
 body { margin:0; padding:0; font:normal 100% arial; }
 [v-cloak] { display: none; }
 
+@keyframes login-color {
+  to {
+    text-shadow: 0px 0px 4px #fffed8;
+  }
+}
+
 @htmlImports:
 {
     body { background-color: @theme-page-background-color; color: @theme-page-section-color; }
@@ -42,31 +48,37 @@ body { margin:0; padding:0; font:normal 100% arial; }
                 position: absolute; bottom: 70px; font-size: 2.0em; border: 0; height: 108px; width: 110px; border-radius: 50%; display: block;background-color: transparent;
                 color:#000;
                 font-weight: bold; font-size:26px;
-                transition: all ease-in 0.2s;
+                transition: color ease-in 0.05s;
                 font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
                 cursor:pointer;
-                text-shadow: 0px 2px 6px #ffd800;
+                text-shadow: 0px 0px 2px #ffe659;
+                user-select: none;
+                animation-name: login-color;
+                animation-duration: 0.9s;
+                animation-iteration-count: infinite;
+                animation-direction: alternate-reverse;
+                animation-timing-function: linear;
             }
             button.submit:hover, button.submit:active {
                 color:#ffd800;
                 text-shadow: 0px 0px 6px rgba(0,0,0,0.8);
-                transition: all ease-in 0.2s;
+                /*transition: all ease-in 0.2s;*/
+                animation: none;
             }
             button.submit[disabled] {
                 cursor: default; color: rgba(0,0,0,0.3);
                 text-shadow: 0px 4px 4px transparent;
+                animation: none;
             }
             .action { position: absolute; right: 22px; bottom: 15px; }
             .remember { margin-top: 6px;
                 label, input { cursor: pointer; }
+                label { user-select: none; }
             }
-            .subrem { display: block; display: flex; flex-direction: row; align-items: center; justify-content: space-between;
-                label { display: flex; }
-                
-            }
+            
 
 
-            .action .link { text-decoration: none; }
+            .action .link { text-decoration: none; user-select: none; }
             .action .link:hover { text-decoration: underline; }
             .error { display: block; width: 100%; padding: 20px 5px 10px 5px; text-align: left; font-weight: normal; font-size: 1.25em; }
         }

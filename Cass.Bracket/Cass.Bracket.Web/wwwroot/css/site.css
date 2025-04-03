@@ -12,6 +12,11 @@ body {
 [v-cloak] {
   display: none;
 }
+@keyframes login-color {
+  to {
+    text-shadow: 0px 0px 4px #fffed8;
+  }
+}
 html body {
   background-color: #ffffff;
   color: black;
@@ -111,21 +116,29 @@ html .login .form button.submit {
   color: #000;
   font-weight: bold;
   font-size: 26px;
-  transition: all ease-in 0.2s;
+  transition: color ease-in 0.05s;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   cursor: pointer;
-  text-shadow: 0px 2px 6px #ffd800;
+  text-shadow: 0px 0px 2px #ffe659;
+  user-select: none;
+  animation-name: login-color;
+  animation-duration: 0.9s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+  animation-timing-function: linear;
 }
 html .login .form button.submit:hover,
 html .login .form button.submit:active {
   color: #ffd800;
   text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.8);
-  transition: all ease-in 0.2s;
+  /*transition: all ease-in 0.2s;*/
+  animation: none;
 }
 html .login .form button.submit[disabled] {
   cursor: default;
   color: rgba(0, 0, 0, 0.3);
   text-shadow: 0px 4px 4px transparent;
+  animation: none;
 }
 html .login .form .action {
   position: absolute;
@@ -139,18 +152,12 @@ html .login .form .remember label,
 html .login .form .remember input {
   cursor: pointer;
 }
-html .login .form .subrem {
-  display: block;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-html .login .form .subrem label {
-  display: flex;
+html .login .form .remember label {
+  user-select: none;
 }
 html .login .form .action .link {
   text-decoration: none;
+  user-select: none;
 }
 html .login .form .action .link:hover {
   text-decoration: underline;
@@ -308,21 +315,29 @@ html.dark .login .form button.submit {
   color: #000;
   font-weight: bold;
   font-size: 26px;
-  transition: all ease-in 0.2s;
+  transition: color ease-in 0.05s;
   font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif;
   cursor: pointer;
-  text-shadow: 0px 2px 6px #ffd800;
+  text-shadow: 0px 0px 2px #ffe659;
+  user-select: none;
+  animation-name: login-color;
+  animation-duration: 0.9s;
+  animation-iteration-count: infinite;
+  animation-direction: alternate-reverse;
+  animation-timing-function: linear;
 }
 html.dark .login .form button.submit:hover,
 html.dark .login .form button.submit:active {
   color: #ffd800;
   text-shadow: 0px 0px 6px rgba(0, 0, 0, 0.8);
-  transition: all ease-in 0.2s;
+  /*transition: all ease-in 0.2s;*/
+  animation: none;
 }
 html.dark .login .form button.submit[disabled] {
   cursor: default;
   color: rgba(0, 0, 0, 0.3);
   text-shadow: 0px 4px 4px transparent;
+  animation: none;
 }
 html.dark .login .form .action {
   position: absolute;
@@ -336,18 +351,12 @@ html.dark .login .form .remember label,
 html.dark .login .form .remember input {
   cursor: pointer;
 }
-html.dark .login .form .subrem {
-  display: block;
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  justify-content: space-between;
-}
-html.dark .login .form .subrem label {
-  display: flex;
+html.dark .login .form .remember label {
+  user-select: none;
 }
 html.dark .login .form .action .link {
   text-decoration: none;
+  user-select: none;
 }
 html.dark .login .form .action .link:hover {
   text-decoration: underline;
