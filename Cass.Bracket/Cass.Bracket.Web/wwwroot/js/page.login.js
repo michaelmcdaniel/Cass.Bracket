@@ -60,6 +60,16 @@ window.page.vue = {
 				this.$nextTick(function () { try { document.getElementById('yourname').focus(); } catch { } });
 			}
 		},
+		trysubmit: function() {
+			if (this.create) {
+				if (this.name.trim() == '') { this.error = 'Enter your NAME!'; this.$nextTick(function () { try { document.getElementById('yourname').focus(); } catch { } }); }
+				else if (this.username.trim() == '' || !/.+@.+\..+$/gi.test(this.username)) { this.error = 'Enter your EMAIL!'; this.$nextTick(function () { try { document.getElementById('username').focus(); } catch { } }); }
+				else if (this.password == '') { this.error = 'Enter your PASSWORD!'; this.$nextTick(function () { try { document.getElementById('password').focus(); } catch { } }); }
+			} else {
+				if (this.username.trim() == '' || !/.+@.+\..+$/gi.test(this.username)) { this.error = 'Enter your EMAIL!'; this.$nextTick(function () { try { document.getElementById('username').focus(); } catch { } }); }
+				else if (this.password == '') { this.error = 'Enter your PASSWORD!'; this.$nextTick(function () { try { document.getElementById('password').focus(); } catch { } }); }
+			}
+		},
         submit: function() {
 			var me = this;
 			if (!this.isValid) return;
@@ -77,10 +87,12 @@ window.page.vue = {
 				if (r.status == 200) return r.json();
 				var error = '';
 				if (r.status == 400) {
-					var jerr = await r.json();
-					error = JSON.stringify(jerr);
+					error = 'Invalid - Try Again.';
+				} else {
+					error = 'login unavailable'
 				}
-				return { success: false, error: `${r.status}: ${r.statusText}: ${error}` };
+
+				return { success: false, error: `${error}` };
 			}).then(r=> {
                 if (r.error) {
                     me.error = r.error;
