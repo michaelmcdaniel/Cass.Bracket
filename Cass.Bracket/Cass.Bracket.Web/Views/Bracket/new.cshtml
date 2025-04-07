@@ -6,10 +6,37 @@
 @section Actions {
 	<div class="actions"><button class="save" v-on:click="save">Save</button></div>
 }
+<template>
+
+</template>
 <div class="page-container">
 	<div><label>Name</label><br/><input type="text" autocomplete="off" name="bracket-name" v-model="bracket.name" /></div>
 	<div><label>Opponents ({{bracket.opponents.length}} opponents, {{totalRounds}} rounds)</label> <i>one per line</i></div>
 	<textarea autocomplete="off" v-model="teamsText" rows="15"></textarea>
+</div>
+<div class="">
+	<div v-for="(round, roundIndex) in mergeByesIntoNextRound(flattenRounds(createBracket(bracket.opponents)))"
+         :key="roundIndex"
+         class="">
+        <h2 class="">Round {{ roundIndex + 1 }}</h2>
+        <div v-for="(game) in round"
+             :key="game.id"
+             class="">
+			<div class="">Game {{ game.id }}</div>
+
+            <div v-for="opponent in game.opponents">
+				<strong>{{ opponent.name ?? ('winner of game: ' + opponent.matchId) }}</strong>
+				<span v-if="opponent.name">(#{{ opponent?.id ?? '-' }})</span>
+            </div>
+        </div>
+    </div>
+</div>
+<div style="white-space:pre">
+	{{JSON.stringify(mergeByesIntoNextRound(flattenRounds(createBracket(bracket.opponents))),null,4)}}
+</div>
+
+<div style="white-space:pre">
+{{JSON.stringify(createBracket(bracket.opponents),null,4)}}
 </div>
 @section Scripts {
 	<script type="text/javascript">
@@ -19,7 +46,7 @@
 				name: '@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value?.ToJavascript()))',
 				bracket: {
 					name: '',
-					opponents: []
+					opponents: ['team1','team2','team3','team4','team5']
 				}
 			}
 		};

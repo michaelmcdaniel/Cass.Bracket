@@ -12,7 +12,7 @@ window._initVuePage = function() {
 		}
 	};
 	let app = Vue.createApp(window.page.vue);
-	//app.config.compilerOptions.whitespace = 'preserve';
+	app.config.compilerOptions.whitespace = 'preserve';
 	VueComponents.forEach(function (o) {
 		app.component(o.ID, o.Component);
 	});
