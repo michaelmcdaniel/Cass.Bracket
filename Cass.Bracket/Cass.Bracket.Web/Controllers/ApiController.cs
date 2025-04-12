@@ -1,4 +1,5 @@
-﻿using Cass.Bracket.Web.Models.Views;
+﻿using Cass.Bracket.Web.Models;
+using Cass.Bracket.Web.Models.Views;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Mvc;
@@ -7,7 +8,7 @@ using System.Security.Claims;
 namespace Cass.Bracket.Web.Controllers
 {
     [ApiController]
-    public class ApiController(UserManager _users) : ControllerBase
+    public class ApiController(UserManager _users, BracketManager _brackets) : ControllerBase
     {
         [HttpPost("/api/user/login")]
         public async Task<IActionResult> Signin([FromBody] AuthenticationModel model)
@@ -52,6 +53,21 @@ namespace Cass.Bracket.Web.Controllers
             catch (UsernameTakenException)
             {
                 return new JsonResult(new { success = false, error = "Username is already taken" });
+            }
+        }
+
+        [HttpPost("/api/bracket/create")]
+        public async Task<IActionResult> SaveBracket([FromBody] Models.Bracket model)
+        {
+			try
+            {
+                if (model.Opponents.Count < 2) return new JsonResult(new { id = 0, success = false, error = "At least 2 teams are required" });
+                _brackets.Save(User, model);
+                return new JsonResult(new { id=model.Id, success = true, error = "" });
+            }
+            catch (Exception ex)
+            {
+                return new JsonResult(new { id = 0, success = false, error = ex.Message });
             }
         }
     }

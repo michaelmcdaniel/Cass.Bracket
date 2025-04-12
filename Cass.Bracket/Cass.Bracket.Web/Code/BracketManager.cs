@@ -3,92 +3,31 @@ using System.Security.Claims;
 using Cass.Bracket.Web.Models;
 using mcZen.Data;
 using Microsoft.Data.SqlClient;
+using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace Cass.Bracket.Web
 {
 	public class BracketManager(IOptions<BracketManager.Options> _options, ILogger<BracketManager> _logger)
 	{
 
-		public static Round GenerateRounds(Models.Bracket bracket)
+		public static List<Match> GenerateRound(IEnumerable<MatchOpponent> opponents)
 		{
-            int teamCount = bracket.Opponents.Count;
-            if (teamCount < 2)
-                throw new ArgumentException("Bracket must have at least 2 opponents.");
-
-            var allMatches = new List<Match>();
-            var matchIdCounter = 1;
-            var roundMap = new Dictionary<int, List<Match>>();
-
-            // Step 1: Create initial queue of seeds as players
-            var queue = new Queue<(int Id, bool IsSeed)>();
-            foreach (int seed in Enumerable.Range(1, teamCount))
-                queue.Enqueue((seed, true));
-
-            int round = 1;
-
-            while (queue.Count > 1)
-            {
-                var roundMatches = new List<Match>();
-                var nextQueue = new Queue<(int Id, bool IsSeed)>();
-
-                while (queue.Count > 1)
-                {
-                    var p1 = queue.Dequeue();
-                    var p2 = queue.Dequeue();
-
-                    var match = new Match
-                    {
-                        Id = matchIdCounter++,
-                        Round = round,
-                        Opponent1 = new MatchOpponent
-                        {
-                            Id = p1.IsSeed ? p1.Id : 0,
-                            ParentMatchId = p1.IsSeed ? 0 : p1.Id,
-                            Score = 0
-                        },
-                        Opponent2 = new MatchOpponent
-                        {
-                            Id = p2.IsSeed ? p2.Id : 0,
-                            ParentMatchId = p2.IsSeed ? 0 : p2.Id,
-                            Score = 0
-                        },
-                        Winner = -1
-                    };
-
-                    roundMatches.Add(match);
-                    allMatches.Add(match);
-                    nextQueue.Enqueue((match.Id, false)); // Next round will reference this match
-                }
-
-                // Handle bye (odd participant)
-                if (queue.Count == 1)
-                {
-                    var bye = queue.Dequeue();
-                    nextQueue.Enqueue(bye); // They advance automatically
-                }
-
-                roundMap[round] = roundMatches;
-                queue = nextQueue;
-                round++;
-            }
-
-            // Step 2: Build linked Round objects
-            Round? next = null;
-            foreach (var r in roundMap.OrderByDescending(r => r.Key))
-            {
-                var roundObj = new Round
-                {
-                    RoundNumber = r.Key,
-                    Points = (int)Math.Pow(2, r.Key - 1),
-                    Matches = r.Value,
-                    Completed = false,
-                    Next = next,
-                    Quadrant = 0
-                };
-                next = roundObj;
-            }
-
-            return next!;
+			var cop = opponents.ToList();
+            int perfectBracket = 0, previousPerfectBracket = 0;
+            for (var i = 2; perfectBracket < cop.Count; i*=2) { previousPerfectBracket = perfectBracket; perfectBracket=i; }
+            var teamsWithBye = new List<MatchOpponent>();
+            var remainingTeams = new List<MatchOpponent>();
+            List<Match> matches = new List<Match>();
+            int numberOfTeamsWithBye = Math.Max(0,previousPerfectBracket - (cop.Count - previousPerfectBracket));
+            int numberOfRemainingTeamsInFirstRound = cop.Count-numberOfTeamsWithBye;
+            for (var i = 0; i < numberOfTeamsWithBye; i++) teamsWithBye.Add(cop[i]);
+            for (var i = numberOfTeamsWithBye; i < cop.Count; i++) remainingTeams.Add(cop[i]);
+            while (teamsWithBye.Count > 0 && remainingTeams.Count > 0) { matches.Add(new Match(1, teamsWithBye.Shift(), remainingTeams.Pop(), remainingTeams.Pop())); }
+            while (remainingTeams.Count > 0) { matches.Add(new Match(1, remainingTeams.Shift(), remainingTeams.Pop())); }
+            while (teamsWithBye.Count > 0) { matches.Add(new Match(1, teamsWithBye.Shift(), teamsWithBye.Pop())); }
+            // reorganize
+            matches.Sort((a,b)=>a.HighestRank-b.HighestRank);
+			return matches;
 		}
 
 		public bool Save(ClaimsPrincipal user, Models.Bracket bracket)
@@ -98,7 +37,24 @@ namespace Cass.Bracket.Web
 			ConnectionFactory factory = new ConnectionFactory(_options.Value.ConnectionString);
 			if (bracket.Id == 0)
 			{
-				factory.Register(Commands.Insert<long>((id) => { bracket.Id = id; }, "Bracket", "Id",
+				factory.Register(Commands.Insert<long>(
+					(id) => { 
+						bracket.Id = id; 
+						int i = 0;
+						foreach(var match in GenerateRound(bracket.Opponents.Select((o,i) => new MatchOpponent() { Id=i })))
+						{
+							if (match.Opponents.Count < 1 || match.Opponents.Count>3) throw new ArgumentOutOfRangeException("Round creation error.");
+							List<SqlParameter> parameters = new List<SqlParameter>();
+							parameters.Add(new SqlParameter("@Round", 1));
+							parameters.Add(new SqlParameter("@MatchIndex", i));
+							parameters.Add(new SqlParameter("@BracketId", id));
+							for(int mi = 1; mi <= match.Opponents.Count; mi++)
+							{
+								parameters.Add(new SqlParameter($"@Opponent{mi}Id", match.Opponents[mi-1].Id));
+							}
+							factory.Register(Commands.Insert<long>((mId) => { match.Id=mId; }, "BracketMatch", "Id", parameters.ToArray()));
+						}
+					}, "Bracket", "Id",
 					new SqlParameter("@Name", bracket.Name),
 					new SqlParameter("@UserId", userId),
 					new SqlParameter("@Private", bracket.Private),
@@ -106,7 +62,7 @@ namespace Cass.Bracket.Web
 					new SqlParameter("@MaxUsers", bracket.MaxUsers),
 					new SqlParameter("@Cutoff", bracket.Cutoff)));
 
-
+				
 			}
 			else
 			{
@@ -118,6 +74,29 @@ namespace Cass.Bracket.Web
 					new SqlParameter("@MinUsers", bracket.MinUsers),
 					new SqlParameter("@MaxUsers", bracket.MaxUsers),
 					new SqlParameter("@Cutoff", bracket.Cutoff)));
+
+				factory.Register(new CommandReader(
+					(r) => {
+						if (r.GetInt32(0) != bracket.Opponents.Count)
+						{
+							factory.Register(new Command("DELETE FROM BracketMatch WHERE BracketId=@BracketId", new SqlParameter("@BracketId", bracket.Id)));
+							int i = 0;
+							foreach(var match in GenerateRound(bracket.Opponents.Select((o,i) => new MatchOpponent() { Id=i })))
+							{
+								if (match.Opponents.Count < 1 || match.Opponents.Count>3) throw new ArgumentOutOfRangeException("Round creation error.");
+								List<SqlParameter> parameters = new List<SqlParameter>();
+								parameters.Add(new SqlParameter("@Round", 1));
+								parameters.Add(new SqlParameter("@MatchIndex", i));
+								parameters.Add(new SqlParameter("@BracketId", bracket.Id));
+								for(int mi = 1; mi <= match.Opponents.Count; mi++)
+								{
+									parameters.Add(new SqlParameter($"@Opponent{mi}Id", match.Opponents[mi-1].Id));
+								}
+								factory.Register(Commands.Insert<long>((mId) => { match.Id=mId; }, "BracketMatch", "Id", parameters.ToArray()));
+							}
+						}
+						return true;
+					}, "SELECT SUM((CASE WHEN Opponent1Id IS NULL THEN 0 ELSE 1 END) + (CASE WHEN Opponent2Id IS NULL THEN 0 ELSE 1 END) + (CASE WHEN Opponent3Id IS NULL THEN 0 ELSE 1 END)) [sum] FROM BracketMatch (nolock) WHERE BracketId=@BracketId AND Round = 1", new SqlParameter("@BracketId", bracket.Id)));
 			}
 
 
@@ -150,12 +129,13 @@ namespace Cass.Bracket.Web
 				r =>
 				{
 					long Opponent1Id = r.GetInt64(0);
-					long Opponent2Id = r.GetInt64(1);
-					int maxUsers = r.GetInt32(3);
-					DateTimeOffset? completed = r.IsDBNull(2) ? null : r.GetDateTimeOffset(2);
+					long Opponent2Id = r.IsDBNull(1)? -1 : r.GetInt64(1);
+					long Opponent3Id = r.IsDBNull(2)? -1 : r.GetInt64(2);
+					int maxUsers = r.GetInt32(4);
+					DateTimeOffset? completed = r.IsDBNull(3) ? null : r.GetDateTimeOffset(3);
 					if (completed != null && completed <= DateTimeOffset.Now) throw new InvalidOperationException("Match is already complete.");
 					if (!(Opponent1Id == vote.Winner || Opponent2Id == vote.Winner)) throw new InvalidOperationException("Invalid winner.");
-					string column = Opponent1Id == vote.Winner ? "Opponent1Id" : "Opponent2Id";
+					string column = Opponent1Id == vote.Winner ? "Opponent1Id" : Opponent2Id == vote.Winner ? "Opponent2Id" : "Opponent3Id";
 					if (vote.Id == 0) // new vote
 					{
 						factory.Register(Commands.Insert<long>((id) => { vote.Id = id; }, "BracketMatchVote", "Id",
@@ -166,7 +146,7 @@ namespace Cass.Bracket.Web
 							new SqlParameter("@UserId", userId)));
 
 						factory.Register(new Command(
-							$"UPDATE BracketMatch SET {column}={column}+1, Complete=CASE WHEN (Opponent1Score+Opponent2Score+1 = @AllowedVotes) THEN sysdatetimeoffset() ELSE NULL END  WHERE Id=@Id AND Complete IS NULL AND (Cutoff IS NULL OR Cutoff < sysdatetimeoffset())",
+							$"UPDATE BracketMatch SET {column}={column}+1, Complete=CASE WHEN (ISNULL(Opponent1Score,0)+ISNULL(Opponent2Score,0)+ISNULL(Opponent3Score,0)+1 = @AllowedVotes) THEN sysdatetimeoffset() ELSE NULL END  WHERE Id=@Id AND Complete IS NULL AND (Cutoff IS NULL OR Cutoff < sysdatetimeoffset())",
 							new SqlParameter("@Id", vote.MatchId), new SqlParameter("@AllowedVotes", maxUsers))
 						);
 
@@ -180,8 +160,8 @@ namespace Cass.Bracket.Web
 							r =>
 							{
 								existingVote = r.GetInt64(0);
-								if (existingVote != vote.Winner) { decrementColumn = existingVote == Opponent1Id ? "Opponent1Id" : "Opponent2Id"; }
-								string column = Opponent1Id == vote.Winner ? "Opponent1Id" : "Opponent2Id";
+								if (existingVote != vote.Winner) { decrementColumn = existingVote == Opponent1Id ? "Opponent1Id" : existingVote == Opponent2Id ? "Opponent2Id" : "Opponent3Id"; }
+								string column = Opponent1Id == vote.Winner ? "Opponent1Id" : Opponent2Id == vote.Winner ? "Opponent2Id" : "Opponent3Id";
 
 								factory.Register(Commands.Update("BracketMatchVote",
 									new SqlParameter("@Id", vote.Id),
@@ -199,7 +179,7 @@ namespace Cass.Bracket.Web
 								}
 								else
 								{
-									incrementVotesQuery += ", Complete=CASE WHEN (Opponent1Score+Opponent2Score+1 = @AllowedVotes) THEN sysdatetimeoffset() ELSE NULL END";
+									incrementVotesQuery += ", Complete=CASE WHEN (ISNULL(Opponent1Score,0)+ISNULL(Opponent2Score,0)+ISNULL(Opponent3Score,0)+1 = @AllowedVotes) THEN sysdatetimeoffset() ELSE NULL END";
 								}
 
 								incrementVotesQuery += $" WHERE Id=@Id AND Complete IS NULL AND (Cutoff IS NULL OR Cutoff < sysdatetimeoffset())";
@@ -212,7 +192,7 @@ namespace Cass.Bracket.Web
 						));
 					}
 					return false;
-				}, "SELECT Opponent1Id, Opponent2Id, Complete, MaxUsers FROM BracketMatch JOIN Bracket ON Bracket.Id=BracketMatch.BracketId WHERE BracketMatch.Id=@MatchId AND BracketMatch.BracketId=@BracketId AND EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@BracketId AND UserId=@UserId)=1",
+				}, "SELECT Opponent1Id, Opponent2Id, Opponent3Id, Complete, MaxUsers FROM BracketMatch JOIN Bracket ON Bracket.Id=BracketMatch.BracketId WHERE BracketMatch.Id=@MatchId AND BracketMatch.BracketId=@BracketId AND EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@BracketId AND UserId=@UserId)=1",
 				System.Data.CommandType.Text, _options.Value.Timeout,
 				new SqlParameter("@MatchId", vote.MatchId),
 				new SqlParameter("@BracketId", vote.BracketId),
@@ -226,7 +206,7 @@ namespace Cass.Bracket.Web
 		public class Options
 		{
 			public string ConnectionString { get; set; } = "";
-			public int Timeout { get; set; } = 30;
+			public TimeSpan Timeout { get; set; } = TimeSpan.FromSeconds(30);
 		}
 	}
 }

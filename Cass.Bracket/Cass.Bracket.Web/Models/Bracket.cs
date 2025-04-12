@@ -1,8 +1,12 @@
-﻿namespace Cass.Bracket.Web.Models
+﻿using System.ComponentModel.DataAnnotations;
+
+namespace Cass.Bracket.Web.Models
 {
     public class Bracket
     {
         public long Id { get; set; } = 0;
+
+        [Required]
         public required string Name { get; set; }
 
         public long UserId { get; set; } = 0;
@@ -23,17 +27,31 @@
 
     public class Match
     {
-        public int Id { get; set; } = 0;
+        public Match()
+        { }
+
+        public Match(int round, params MatchOpponent[] opponents)
+        {
+            Round = round;
+            Opponents.AddRange(opponents);
+        }
+        public long Id { get; set; } = 0;
         public int Round { get; set; } = 0;
-        public MatchOpponent Opponent1 { get; set; } = new MatchOpponent();
-        public MatchOpponent Opponent2 { get; set; } = new MatchOpponent();
+        public List<MatchOpponent> Opponents { get; set; } = new List<MatchOpponent>();
         public int Winner { get; set; } = -1;
+
+        public int HighestRank { get=> Opponents.OrderBy(o=>o.Id).Last().Id; }
 
 		public override string ToString()
 		{
-            string o1w = Winner==Opponent1.Id?"(winner)":"";
-            string o2w = Winner==Opponent2.Id?"(winner)":"";
-			return $"{Round}.{Id}: {Opponent1.ParentMatchId}.{Opponent1.Id} {Opponent1.Score:0} {o1w} vs {Opponent2.ParentMatchId}.{Opponent2.Id} {Opponent2.Score:0} {o2w}";
+            string output = "";
+            for(var i = 0; i < Opponents.Count; i++)
+            {
+                if (i > 0) output += " vs";
+                output += $" {Opponents[i].ParentMatchId}.{Opponents[i].Id} {Opponents[i].Score:0} ";
+                if (Opponents[i].Id == Winner) output += " (winner)";
+            }
+			return $"{Round}.{Id}: {output}";
 		}
 	}
 
@@ -41,14 +59,14 @@
     {
         public int Id {get; set; } = 0;
         public double Score { get; set; } = 0.0;
-        public int ParentMatchId { get; set;} = 0;
+        public long ParentMatchId { get; set;} = 0;
     }
 
     public class MatchVote
     {
         public long Id { get; set; } = 0;
 		public long BracketId { get; set; }
-        public int MatchId { get; set; } = 0;
+        public long MatchId { get; set; } = 0;
         public int RoundNumber { get; set; } = 0;
         public int Winner { get; set; } = -1;
         public long UserId { get; set; } = 0;
