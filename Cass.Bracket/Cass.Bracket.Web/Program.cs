@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.Services.AddSASTokenStore_AppConfiguration();
+
 // Add services to the container.
 var mvcBuilder = builder.Services.AddControllersWithViews();
 #if DEBUG
@@ -10,12 +12,12 @@ var mvcBuilder = builder.Services.AddControllersWithViews();
 #endif 
 
 builder.Services.Configure<UserManager.Options>(options => {
-    options.ConnectionString = builder.Configuration.GetConnectionString("mcdaniel_ws")!;
+    options.ConnectionString = builder.Configuration.GetConnectionString("connection-string")!;
     options.Timeout = TimeSpan.FromSeconds(builder.Configuration.GetValue<int>("connection-timeout-in-seconds", (int)options.Timeout.TotalSeconds));
 });
 builder.Services.AddTransient<UserManager>();
 builder.Services.Configure<BracketManager.Options>(options => {
-    options.ConnectionString = builder.Configuration.GetConnectionString("mcdaniel_ws")!;
+    options.ConnectionString = builder.Configuration.GetConnectionString("connection-string")!;
     options.Timeout = TimeSpan.FromSeconds(builder.Configuration.GetValue<int>("connection-timeout-in-seconds", (int)options.Timeout.TotalSeconds));
 });
 builder.Services.AddTransient<BracketManager>();

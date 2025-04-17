@@ -2,12 +2,35 @@
 	ViewData["Title"] = "Brackets";
 	ViewData["page"] = "home";
 }
-
-<div class="text-center">
-	<div class="actions">
-		<a href="~/bracket/new">New Bracket</a>
+<div class="page-container">
+	<div class="section">
+		<h1>Cast Your Predictions</h1>
+		<div v-if="active.length==0">
+			<p>you aren't particpanting in anything.<br /><br />you should <span v-if="open.length>0">find a fortune<br />or </span>speak a prophecy...</p>
+		</div>
+		<div v-if="active.length > 0">
+			<p>These are brackets you are participating in</p>
+			<table>
+				<tr v-for="(b,i) in active"><td><a :href="'/bracket/vote/'+b.id">{{b.name}}</a></td></tr>
+			</table>
+		</div>
 	</div>
-	Hello {{name}}!
+
+	<div class="section" v-if="open.length>0">
+		<h1>Find Your Fortune</h1>
+		<p>Make your future become the past. Join NOW!</p>
+		<table>
+			<tr v-for="(b,i) in open"><td><a :href="'/bracket/vote/'+b.id"><dl>{{b.name}}</dl><dd>{{b.description}}</dd></a></td></tr>
+		</table>
+	</div>
+
+	<div class="section">
+		<h1>Speak Your Prophecy</h1>
+		<div class="my-brackets">
+			<a href="~/bracket/">New Bracket</a>
+			<template v-for="(b,i) in brackets"><a :href="'/bracket/'+b.id">{{b.name}}</a></template>
+		</div>
+	</div>
 </div>
 
 @section Scripts {
@@ -16,7 +39,9 @@
 			model: {
 				username:'@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value?.ToJavascript()))',
 				name: '@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value?.ToJavascript()))',
-				brackets: []
+				brackets: [],
+				active:[],
+				open:[]
 			}
 		};
 	</script>

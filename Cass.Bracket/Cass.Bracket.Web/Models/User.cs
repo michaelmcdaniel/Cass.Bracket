@@ -11,5 +11,7 @@
         public required string Password { get; set; } 
 
         public bool ForcePasswordReset { get; set; } = false;
+
+        public bool IsAdmin { get; set; } = false;
     }
 }

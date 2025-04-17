@@ -1,0 +1,35 @@
+@import "components.core.switch.colors.less";
+
+a {
+    color: @theme-page-section-color;
+    &:hover { text-decoration: underline; }
+    &:visited { color:@theme-page-section-color; }
+    dd { color:@theme-page-section-color-soft; }
+}
+
+button {
+    transition: all linear 0.1s;
+    background: @button-background;
+    color: @button-color;
+    border: @button-border;
+    &:hover {
+        background: @button-background-hover;
+        color: @button-color-hover;
+        border: @button-border-hover;
+    }
+    &[disabled] {
+        background: @button-background-disabled;
+        color: @button-color-disabled;
+        border: @button-border-disabled;
+    }
+}
+
+input[type=text], input[type=password], textarea {
+    background: @input-text-background;
+    color:@input-text-color;
+    border: @input-text-border;
+    &:focus {
+        border: @input-text-border-active;
+        outline: none;
+    }
+}

@@ -9,6 +9,8 @@ namespace Cass.Bracket.Web.Models
         [Required]
         public required string Name { get; set; }
 
+        public string Description { get; set; }= string.Empty;
+
         public long UserId { get; set; } = 0;
 
         public bool Private { get; set; } = false;
@@ -16,14 +18,29 @@ namespace Cass.Bracket.Web.Models
         public int MinUsers { get; set; } = 2;
         public int MaxUsers { get; set; } = 0;
 
-		public List<string> Opponents { get; set; } = new List<string>();
+		public List<Opponent> Opponents { get; set; } = new List<Opponent>();
 
         public DateTimeOffset Created { get; set; }
 
         public DateTimeOffset Cutoff { get; set; }
 
-        public List<long> Registered { get; set; } = new List<long>();
+        public BracketStatus Status { get; set; } = BracketStatus.Pending;
+
+		public List<long> Registered { get; set; } = new List<long>();
     }
+
+    public class Opponent
+    {
+        public long Id { get; set; }
+        public string Name { get; set; } = string.Empty;
+        public string Url { get; set; } = string.Empty;
+        public int Rank { get; set;}
+
+		public override string ToString()
+		{
+			return $"#{Rank} {Name} ({Id})";
+		}
+	}
 
     public class Match
     {
@@ -38,9 +55,9 @@ namespace Cass.Bracket.Web.Models
         public long Id { get; set; } = 0;
         public int Round { get; set; } = 0;
         public List<MatchOpponent> Opponents { get; set; } = new List<MatchOpponent>();
-        public int Winner { get; set; } = -1;
+        public long Winner { get; set; } = -1;
 
-        public int HighestRank { get=> Opponents.OrderBy(o=>o.Id).Last().Id; }
+        public int HighestRank { get=> Opponents.Where(o=>o.Opponent != null).OrderBy(o=>o.Opponent!.Rank).LastOrDefault()?.Opponent?.Rank??0; }
 
 		public override string ToString()
 		{
@@ -48,8 +65,8 @@ namespace Cass.Bracket.Web.Models
             for(var i = 0; i < Opponents.Count; i++)
             {
                 if (i > 0) output += " vs";
-                output += $" {Opponents[i].ParentMatchId}.{Opponents[i].Id} {Opponents[i].Score:0} ";
-                if (Opponents[i].Id == Winner) output += " (winner)";
+                output += $" {Opponents[i].ParentMatchId}.{Opponents[i]} {Opponents[i].Score:0} ";
+                if (Opponents[i].Opponent!.Id == Winner) output += " (winner)";
             }
 			return $"{Round}.{Id}: {output}";
 		}
@@ -57,7 +74,7 @@ namespace Cass.Bracket.Web.Models
 
     public class MatchOpponent
     {
-        public int Id {get; set; } = 0;
+        public Opponent? Opponent { get; set; }
         public double Score { get; set; } = 0.0;
         public long ParentMatchId { get; set;} = 0;
     }
@@ -68,7 +85,7 @@ namespace Cass.Bracket.Web.Models
 		public long BracketId { get; set; }
         public long MatchId { get; set; } = 0;
         public int RoundNumber { get; set; } = 0;
-        public int Winner { get; set; } = -1;
+        public long Winner { get; set; } = -1;
         public long UserId { get; set; } = 0;
         public DateTimeOffset CastAt { get; set; } = DateTimeOffset.MinValue;
     }

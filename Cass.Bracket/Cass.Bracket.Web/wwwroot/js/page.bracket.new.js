@@ -5,14 +5,22 @@ if (!window.page.defaults) window.page.defaults = {};
 window.page.vue = {
 	data: function () {
 		return Object.assign({
+            initialized: false,
 			error: '',
-			teamsText: ''
+			teamsText: '',
+            draftDebounce: null
 		}, window.page.model);
 	},
 	mounted: function () {
+        var me=this;
         this.teamsText = this.bracket.opponents.join("\n");
+        this.growAll(function(){me.initialized=true;});
 	},
 	computed: {
+        shortName: function () {
+            if (this.name.length > 18) return this.name.substr(0, 15) + '...';
+            return this.name;
+        },
 		totalRounds: function() {
 			if (this.bracket.opponents.length < 2) return 0;
 			return Math.ceil(Math.log2(this.bracket.opponents.length));
@@ -22,22 +30,51 @@ window.page.vue = {
         },
         roundsAsTableRow: function () {
             return this.makeTable(this.mergeByesIntoNextRound(this.flattenRounds(this.createBracket(this.bracket.opponents))));
+        },
+        canPublish: function() {
+            var hasName = !/^\s*$/gi.test(this.bracket.name);
+            var has2Opponents = this.bracket.opponents.length>1;
+            return hasName && has2Opponents;
         }
 	},
 	watch: {
+        preview: function() {
+            this.growAll();
+        },
+        'bracket': {
+            handler(v) {
+                var me = this;
+                if (this.draftDebounce) clearTimeout(this.draftDebounce);
+                if (!this.canPublish || !this.initialized || this.locked) return;
+                this.draftDebounce = setTimeout(function() {me.save()}, 1000); 
+            }, 
+            deep: true 
+        },
 		'teamsText' : function(v) {
 			this.bracket.opponents = v.split('\n').map(s => s.trim()).filter(s => s !== "")
 		}
 	},
 	methods: {
-		save: function() {
+        growAll: function(callback) {
             var me = this;
-            fetch('/api/bracket/create', {
+            this.$nextTick(function () {
+                me.grow(me.$refs.name);
+                me.grow(me.$refs.description);
+                me.grow(me.$refs.opponents);
+                if (typeof callback == 'function') callback();
+            })
+        },
+		save: function(publish) {
+            var me = this;
+            console.log('saving');
+            fetch('/api/bracket/save', {
                 method: 'post', headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     Id: this.bracket.id,
                     Name: this.bracket.name,
-                    Opponents: this.bracket.opponents
+                    Description: this.bracket.description,
+                    Opponents: this.bracket.opponents,
+                    Publish: publish||false
                 })
                 }).then(async r=>{
                     if (r.status == 400) {
@@ -55,10 +92,20 @@ window.page.vue = {
                     if (!data.success) {
                         alert(data.error);
                     } else {
+                        if (me.bracket.id != data.id) {
+                            window.history.replaceState(null, '', '/bracket/'+data.id);
+                        }
                         me.bracket.id = data.id;
+                        me.locked=data.locked;
                     }
                 })
-		},
+        },
+        grow: function (element) {
+            if (element) {
+                element.style.height = "auto"; // Reset height
+                element.style.height = (element.scrollHeight + (element==this.$refs.opponents?24:0)) + "px"; // Set to scroll height
+            }
+        },
         generateRound: function(teams) {
             if (teams.length < 2) { return []; }
             let gameId = 1;

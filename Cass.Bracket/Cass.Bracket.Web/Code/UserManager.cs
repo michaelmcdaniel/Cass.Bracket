@@ -20,11 +20,15 @@ namespace Cass.Bracket.Web
                     new SqlParameter("@user_email", user.Email),
                     new SqlParameter("@user_password", hasher.HashPassword(user, user.Password))), _options.Value.ConnectionString);
             }
+            else if (string.IsNullOrWhiteSpace(user.Password))
+            {
+                ConnectionFactory.Execute(Commands.Update("BracketUser", new SqlParameter("@user_id", user.Id),
+                    new SqlParameter("@user_Name", user.Name)), _options.Value.ConnectionString);
+            }
             else
             {
                 ConnectionFactory.Execute(Commands.Update("BracketUser", new SqlParameter("@user_id", user.Id),
                     new SqlParameter("@user_Name", user.Name),
-                    new SqlParameter("@user_email", user.Email),
                     new SqlParameter("@user_password", hasher.HashPassword(user, user.Password))), _options.Value.ConnectionString);
             }
         }
@@ -39,11 +43,12 @@ namespace Cass.Bracket.Web
                     Email = r.GetString(1),
                     Name = r.GetString(2),
                     Password = r.GetString(3),
-                    Created = r.GetDateTimeOffset(4)
+                    Created = r.GetDateTimeOffset(4),
+                    IsAdmin = r.IsDBNull(5)?false:r.GetBoolean(5)
                 };
                 return false;
                 },
-                "SELECT user_id, user_email, user_name, user_password, user_created FROM BracketUser where user_email=@email", System.Data.CommandType.Text, _options.Value.Timeout, new SqlParameter("@email", email)), _options.Value.ConnectionString);
+                "SELECT user_id, user_email, user_name, user_password, user_created, user_IsAdmin FROM BracketUser where user_email=@email", System.Data.CommandType.Text, _options.Value.Timeout, new SqlParameter("@email", email)), _options.Value.ConnectionString);
             return retVal;
         }
 

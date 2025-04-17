@@ -14,19 +14,26 @@
 		<link rel="stylesheet" href="~/css/site.min.css" asp-append-version="true" />
 	</environment>
 	<script type="text/javascript" src="~/js/component.registration.js" asp-append-version="true"></script>
+	<script type="text/javascript" src="~/js/components/vue.core.switch.js" asp-append-version="true"></script>
 </head>
 <body class="page-@ViewData["page"]">
-	<div id="vueRoot">
+	<div id="vueRoot" v-cloak>
 		<header>
+			
+
 			@if (User.Identity?.IsAuthenticated??false)
 			{
-				<nav class="main">
-					<div class="left">
-						<a href="~/">Home</a>
-					</div>
-					<div class="right">
-						<a href="~/logout">Logout</a>
-					</div>
+				<nav>
+					
+					<nav class="main">
+						<div class="account">
+							<a href="~/account" style="float:left; margin:3px;">Welcome {{shortName}}</a>
+							<a href="~/logout" style="float:right; margin:3px;">Logout</a>
+						</div>
+						<div class="places">
+							<a href="~/"><img src="~/img/bracketology-cass-title.png" /></a>
+						</div>
+					</nav>
 				</nav>
 				<nav class="actions">
 					@RenderSection("Actions", false)
@@ -36,6 +43,12 @@
 		<div>
 			@RenderBody()
 		</div>
+		@if (User.Identity?.IsAuthenticated??false)
+		{
+			<footer>
+				<img class="cass" src="/img/Cass-optimized.800.png" />
+			</footer>
+		}
 	</div>
     @await RenderSectionAsync("Scripts", required: false)
 	<script src="~/js/core.js" asp-append-version="true"></script>

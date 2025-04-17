@@ -1,0 +1,26 @@
+﻿@{
+}
+
+<div class="page-container">
+	<div class="account-data">
+		<label>Change your name</label>
+		<div><input id="yourname" type="text" placeholder="Your Name" v-on:keyup.enter="trysubmit" v-model="name" /></div>
+		<label>Change your password</label>
+		<div><input id="password" type="password" placeholder="Your Password" v-model="password" /></div>
+		<button v-on:click="trysubmit">Save Changes</button>
+		<div class="success" v-if="success">Congratulations,<br/>You did it!</div>
+		<div v-if="error"><span class="error">{{error}}</span></div>
+	</div>
+</div>
+@section Scripts {
+	<script type="text/javascript">
+		window.page = {
+			model: {
+				name: '@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value?.ToJavascript()))',
+				password: '',
+				success: false,
+			}
+		};
+	</script>
+	<script src="~/js/page.account.js" asp-append-version="true"></script>
+}

@@ -1,0 +1,205 @@
+﻿@import (reference) "common.less";
+@import (reference) "theme.light.less";
+
+
+@switch-color-label: @theme-page-section-color-medium-hard;
+@switch-color-label-disabled: @theme-page-section-color-disabled;
+@switch-color-left-slider: @theme-page-section-border-color;
+@switch-color-right-slider: @theme-page-section-border-color;
+@switch-color-left-slider-border: 1px solid @theme-page-section-border-color; /*darken(@switch-color-left-slider,8%);*/
+@switch-color-right-slider-border: 1px solid @theme-page-section-border-color; /*darken(@switch-color-right-slider,8%);*/
+@switch-color-left-knob: @theme-page-background-color;
+@switch-color-left-knob-border: 1px solid @theme-page-section-border-color; /*darken(@switch-color-left-knob,20%);*/
+@switch-color-left-knob-border-hover: 1px solid @theme-page-section-color-medium-soft; /*darken(@switch-color-left-knob,40%);*/
+@switch-color-left-knob-border-focus: 2px solid @theme-page-section-color-medium-soft; /*darken(@switch-color-left-knob,60%);*/
+@switch-color-right-knob: @theme-page-background-color;
+@switch-color-right-knob-border: 1px solid @theme-page-section-border-color; /*darken(@switch-color-right-knob,20%);*/
+@switch-color-right-knob-border-hover: 1px solid @theme-page-section-color-medium-soft; /*darken(@switch-color-right-knob,40%);*/
+@switch-color-right-knob-border-focus: 2px solid @theme-page-section-color-medium-soft; /*darken(@switch-color-right-knob,60%);*/
+@switch-color-left-label: @theme-page-section-color-medium-hard;
+@switch-color-right-label: @theme-page-section-color-medium-hard;
+@switch-color-left-label-active: @theme-page-section-color;
+@switch-color-right-label-active: @theme-page-section-color;
+@switch-color-left-label-hover: @theme-page-section-color-hover;
+@switch-color-right-label-hover: @theme-page-section-color-hover;
+
+@switch-color-slider-disabled: @theme-page-section-color-disabled;
+@switch-color-slider-border-disabled: @theme-page-section-border-color; 
+@switch-color-knob-disabled: @theme-page-section-color-disabled;
+@switch-color-knob-border-disabled: @theme-page-background-color; 
+@switch-color-left-label-disabled: @theme-page-section-color-disabled;
+@switch-color-right-label-disabled: @theme-page-section-color-disabled;
+
+@switch-color-on-slider: #A5D6A7;
+@switch-color-on-slider-border: 1px solid darken(@switch-color-on-slider,8%);
+@switch-color-on-knob: #4CAF50;
+@switch-color-on-knob-border: 1px solid darken(@switch-color-on-knob,8%);
+@switch-color-on-knob-border-hover: 1px solid darken(@switch-color-on-knob,20%);
+@switch-color-on-knob-border-focus: 2px solid darken(@switch-color-on-knob,12%);
+@switch-color-on-label: @theme-page-section-color-medium-hard;
+@switch-color-on-label-active: #4CAF50;
+@switch-color-on-label-hover: #4CAF50;
+
+@switch-color-off-slider: #d6a5a5;
+@switch-color-off-slider-border: 1px solid darken(@switch-color-off-slider,8%);
+@switch-color-off-knob: #af4c4c;
+@switch-color-off-knob-border: 1px solid darken(@switch-color-off-knob,8%);
+@switch-color-off-knob-border-hover:1px solid darken(@switch-color-off-knob,20%);
+@switch-color-off-knob-border-focus:2px solid darken(@switch-color-off-knob,12%);
+@switch-color-off-label: @theme-page-section-color-medium-hard;
+@switch-color-off-label-active: #af4c4c;
+@switch-color-off-label-hover: #873b3b;
+
+.switch { 
+	label {
+		 color:@switch-color-label;
+		 &.on { 
+			color:@switch-color-left-label; 
+			&:hover { color:@switch-color-left-label-hover; }
+		 }
+		 &.off { 
+			color:@switch-color-right-label-active; 
+			&:hover { color:@switch-color-right-label-hover; }
+		 }
+	}
+	&-knob {
+		&:before { 
+			border: @switch-color-right-slider-border;
+			background-color: @switch-color-right-slider; 
+		}
+		&:after { 
+			border: @switch-color-right-knob-border;
+			background-color: @switch-color-right-knob; 
+		}
+		&:hover:after { border: @switch-color-right-knob-border-hover; }
+		&:focus:after { border: @switch-color-right-knob-border-focus; }
+	}
+	input:checked {
+		~ .switch-knob {
+			&:before { background-color: @switch-color-left-slider; border: @switch-color-left-slider-border;}
+			&:after { background-color: @switch-color-left-knob; border: @switch-color-left-knob-border; }
+			&:hover:after { border: @switch-color-left-knob-border-hover; }
+			&:focus:after { border: @switch-color-left-knob-border-focus; }
+		}
+		~ label {
+			&.on { 
+				color:@switch-color-left-label-active; 
+				&:hover {  color:@switch-color-left-label-hover; }
+			}
+			&.off { 
+				color:@switch-color-right-label; 
+				&:hover { color:@switch-color-right-label-hover;}
+			}
+		}
+	}
+
+	&.yellow-knob .switch-knob:after { background-color:#ffff00; }
+	&.green {
+		label {
+			 &.on { 
+				color:@switch-color-on-label;
+				&:hover { color:@switch-color-on-label-hover; }
+			 }
+		}
+		input:checked {
+			~ .switch-knob {
+				&:before { background-color: @switch-color-on-slider; border: @switch-color-on-slider-border;}
+				&:after { background-color: @switch-color-on-knob; border: @switch-color-on-knob-border; }
+				&:hover:after { border:@switch-color-on-knob-border-hover; }
+				&:focus:after { border:@switch-color-on-knob-border-focus; }
+			}
+			~ label {
+				&.on { 
+					color:@switch-color-on-label-active;
+					&:hover {  color:@switch-color-on-label-hover; }
+				}
+			}
+		}
+	}
+	&.red {
+		label {
+			 &.off { color:@switch-color-off-label-active;
+				&:hover { color:@switch-color-off-label-hover; }
+			 }
+		}
+		.switch-knob {
+			&:before { background-color: @switch-color-off-slider; border: @switch-color-off-slider-border;}
+			&:after {background-color: @switch-color-off-knob; border: @switch-color-off-knob-border; }
+			&:hover:after { border: @switch-color-off-knob-border-hover; }
+			&:focus:after { border: @switch-color-off-knob-border-focus; }
+		}
+		input:checked {
+			~ label {
+				&.off { 
+					color:@switch-color-off-label;
+					&:hover { color:@switch-color-off-label-hover; }
+				}
+			}
+		}
+	}
+	&.readonly {
+		label {
+			color: @switch-color-label;
+			 &.on { color:@switch-color-left-label-disabled;
+				&:hover { color:@switch-color-left-label-disabled; }
+			 }
+			 &.off { 
+				&:hover { color:@switch-color-right-label;}
+			 }
+		}
+		.switch-knob {
+			&:before { background-color: @switch-color-slider-disabled; border: @switch-color-slider-border-disabled;}
+			&:after { background-color: @switch-color-right-knob; border: @switch-color-right-knob-border;}
+			&:hover:after { background-color: @switch-color-knob-disabled; border-color: @switch-color-knob-border-disabled;}
+		}
+		input:checked {
+			~ .switch-knob {
+				&:before { background-color: @switch-color-slider-disabled; border: @switch-color-slider-border-disabled;}
+				&:after { background-color: @switch-color-left-knob; border-color: @switch-color-left-knob-border;}
+				&:hover:after { border:@switch-color-left-knob-border;}
+			}
+			~ label {
+				&.on { 
+					&:hover { color:@switch-color-right-label-active;}
+				}
+				&.off { 
+					color:@switch-color-right-label-disabled;
+					&:hover { color:@switch-color-right-label-disabled;}
+				}
+			}
+		}
+	}
+	&.disabled {
+		label {
+			color: @switch-color-label-disabled;
+			 &.on { color:@switch-color-left-label-disabled;
+				&:hover { color:@switch-color-left-label-disabled;}
+			 }
+			 &.off { color:@switch-color-right-label-disabled;
+				&:hover { color:@switch-color-right-label-disabled;}
+			 }
+		}
+		.switch-knob {
+			&:before { background-color: @switch-color-slider-disabled; border: @switch-color-slider-border-disabled;}
+			&:after { background-color: @switch-color-knob-disabled; border: @switch-color-knob-border-disabled; }
+			&:hover:after { border: @switch-color-knob-border-disabled;  }
+		}
+		input:checked {
+			~ .switch-knob {
+				&:before { background-color: @switch-color-slider-disabled; border: @switch-color-slider-border-disabled;}
+				&:after { background-color: @switch-color-knob-disabled; border: @switch-color-knob-border-disabled; }
+				&:hover:after { border:@switch-color-knob-border-disabled; }
+			}
+			~ label {
+				&.on { 
+					color:@switch-color-right-label-disabled;
+					&:hover { color:@switch-color-right-label-disabled; }
+				}
+				&.off { 
+					color:@switch-color-right-label-disabled;
+					&:hover { color:@switch-color-right-label-disabled; }
+				}
+			}
+		}
+	}
+}

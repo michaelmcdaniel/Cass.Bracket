@@ -12,17 +12,17 @@ namespace Cass.Bracket.Web.Code.Tests
 			sc.AddTransient<BracketManager>();
 			var services = sc.BuildServiceProvider();
 
-			var bracket = new Models.Bracket
-			{
-				Id = 1,
-				Name = "Test Bracket",
-				UserId = 1,
-				Private = false,
-				MinUsers = 2,
-				MaxUsers = 0,
-				Cutoff = DateTimeOffset.UtcNow.AddDays(7),
-				Opponents = new List<string> { "Team 1", "Team 2", "Team 3", "Team 4" }
-			};
+			//var bracket = new Models.Bracket
+			//{
+			//	Id = 1,
+			//	Name = "Test Bracket",
+			//	UserId = 1,
+			//	Private = false,
+			//	MinUsers = 2,
+			//	MaxUsers = 0,
+			//	Cutoff = DateTimeOffset.UtcNow.AddDays(7),
+			//	Opponents = new List<string> { "Team 1", "Team 2", "Team 3", "Team 4" }
+			//};
 			//var round = BracketTreeBuilder.GenerateBracketRounds(bracket);
 			//Assert.IsNotNull(round);
 			//Assert.AreEqual(1, round.RoundNumber);

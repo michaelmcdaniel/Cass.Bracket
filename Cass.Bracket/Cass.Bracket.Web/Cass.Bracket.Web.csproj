@@ -17,10 +17,11 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="mcdaniel.ws.AspNetCore.Authentication.SASToken" Version="2.2.1" />
     <PackageReference Include="mcZen.Data" Version="0.6.4" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.Cookies" Version="2.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity" Version="2.3.1" />
-    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.3" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" Version="9.0.4" />
     <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.13.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.21.2" />
     <PackageReference Include="MSTest.TestAdapter" Version="3.8.3" />

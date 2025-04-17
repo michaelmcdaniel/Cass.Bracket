@@ -1,0 +1,56 @@
+﻿@model Cass.Bracket.Web.Models.Bracket
+@{
+	ViewData["page"] = "new-bracket";
+}
+
+<div class="page-container">
+	<div class="actions">
+		<button class="preview" v-if="!locked" v-on:click="preview=!preview"><span v-if="!preview">Preview</span><span v-if="preview">Edit</span></button>
+		<button class="save" v-if="!locked" :disabled="!canPublish" v-on:click="save(true)">Publish</button>
+	</div>
+
+	<div class="form">
+		<div><textarea class="title" :readonly="preview" ref="name" placeholder="Title" autocomplete="off" v-on:keyup="grow($event.target)" v-on:keydown="grow($event.target)" rows="1" name="bracket-name" v-model="bracket.name"></textarea></div>
+		<div><textarea class="description" v-if="!preview || !/^\s*$/gi.test(bracket.description)" ref="description" placeholder="description" v-on:keyup="grow($event.target)" v-on:keydown="grow($event.target)" rows="1" autocomplete="off" name="bracket-description" v-model="bracket.description"></textarea></div>
+		<div v-if="preview || locked" class="preview-round">Round 1</div>
+		<div v-if="!preview && !locked" class="directions"><label>Opponents ({{bracket.opponents.length}})</label> <i class="directions">one per line</i></div>
+		<textarea v-if="!preview && !locked" ref="opponents" class="opponents" v-on:keyup="grow($event.target)" v-on:keydown="grow($event.target)" rows="1" :readonly="bracket.locked" autocomplete="off" v-model="teamsText" rows="15"></textarea>
+		<div v-if="preview || locked" class="round-matches">
+			<div v-if="bracket.opponents.length==0" class="error">NO OPPONENTS!</div>
+			<div v-for="(game, gameIndex) in generateRound(bracket.opponents)" :key="gameIndex" class="">
+				<div class="match">Match {{ game.id }}</div>
+				<div class="opponents">
+					<div class="opponent" v-for="opponent in game.opponents">
+						<strong>{{ opponent.name ?? ('winner of game: ' + opponent.matchId) }}</strong>
+						<span v-if="opponent.name">(#{{ (opponent?.id+1) ?? '-' }})</span>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	
+
+</div>
+
+<!--div style="white-space:pre">
+	{{JSON.stringify(generateRound(bracket.opponents), null, 2)}}
+</div-->
+@section Scripts {
+	<script type="text/javascript">
+		window.page = {
+			model: {
+				username:'@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Email)?.Value?.ToJavascript()))',
+				name: '@(Html.Raw(User.Claims.FirstOrDefault(c => c.Type == System.Security.Claims.ClaimTypes.Name)?.Value?.ToJavascript()))',
+				preview: false,
+				locked: @(Model.Status != Cass.Bracket.Web.Models.BracketStatus.Pending ? "true" : "false"),
+				bracket: {
+					id: @Model.Id,
+					name: '@Model.Name.ToJavascript()',
+					description: '@Model.Description.ToJavascript()',
+					opponents: @(Html.Raw(System.Text.Json.JsonSerializer.Serialize(Model.Opponents.Select(o=>o.Name))))
+				}
+			}
+		};
+	</script>
+	<script src="~/js/page.bracket.new.js" asp-append-version="true"></script>
+}

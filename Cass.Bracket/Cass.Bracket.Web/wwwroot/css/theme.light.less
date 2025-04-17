@@ -1,42 +1,44 @@
 @import (reference) "common.less";
 
 /* COLORS */
-@gs-black: #000000;
-@gs-hard: #222;
-@gs-dark: #303030;
-@gs-medium-dark: #838383;
-@gs-medium: #dddddd;
-@gs-medium-light: #e1e1e1;
-@gs-light: #f5f5f5;
-@gs-white: #ffffff;
-
 @text-black: black;
 @text-white: white;
-@text-dark: #133a6c;
-@text-medium: #216fdf;
-@text-light: #c2ddff;
+@text-color-dark: #e6ba6d;
+@text-color: #ffd800;
+@text-color-light: #8f600e;
 
-
-@text-required: #db4242;
+@text-required: #ffd800;
 @text-error: #db4242;
-@text-link: #4e89da;
+@text-link: #ffd800;
 
-@bg-error-dark: #db4242;
-@bg-error-light: #ffe3e3;
 
-@theme-page-background-color: @gs-white;
-@theme-page-section-background-color: @gs-light;
-@theme-page-section-border-color: @gs-medium-light;
-@theme-page-section-color-soft: #ccc;
-@theme-page-section-color-soft-hover: darken(@gs-light, 20%);
-@theme-page-section-color-medium-soft: @gs-medium-light;
-@theme-page-section-color-medium-soft-hover: darken(@gs-medium, 10%);
-@theme-page-section-color: @text-black;
-@theme-page-section-color-hover: darken(@gs-medium, 30%);
-@theme-page-section-color-medium-hard: lighten(@gs-dark, 10%);
-@theme-page-section-color-medium-hard-hover: lighten(@gs-dark, 20%);
-@theme-page-section-color-hard: @gs-black;
-@theme-page-section-color-hard-hover: @gs-black;
+@theme-page-background-color: #271a06;
+@theme-page-section-background-color: #271a06;
+@theme-page-section-border-color: #bf8827;
+@theme-page-section-color-soft: @text-color-light;
+@theme-page-section-color-soft-hover: darken(#8f600e, 20%);
+@theme-page-section-color-medium-soft: darken(@theme-page-section-color, 20%);
+@theme-page-section-color-medium-soft-hover: darken(@theme-page-section-color, 10%);
+@theme-page-section-color: @text-color;
+@theme-page-section-color-hover: darken(@theme-page-section-color, 30%);
+@theme-page-section-color-medium-hard: lighten(@theme-page-section-color, 10%);
+@theme-page-section-color-medium-hard-hover: lighten(@theme-page-section-color, 20%);
+@theme-page-section-color-hard: @text-color-dark;
+@theme-page-section-color-hard-hover: lighten(@theme-page-section-color-hard, 10%);
+@theme-page-section-color-disabled:  #e2ddd4;
 
-@theme-nav-background-color: #216fdf;
-@theme-nav-color:#fff;
+@button-background: #cfa04e;
+@button-background-hover: #e6ba6d;
+@button-background-disabled: #3d2803;
+@button-color: #654307;
+@button-color-hover: #3d2803;
+@button-color-disabled: #564a36;
+@button-border: 2px solid #8d6623;
+@button-border-hover: 2px solid #cfa04e;
+@button-border-disabled: 2px solid #4f310c;
+
+@input-text-background: transparent;
+@input-text-color: #ffd800;
+@input-text-border: 2px solid #bf8827;
+@input-text-border-active: 2px solid #ebc854;
+
