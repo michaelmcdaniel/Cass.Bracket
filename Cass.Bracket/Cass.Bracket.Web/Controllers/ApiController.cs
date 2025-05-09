@@ -163,6 +163,18 @@ namespace Cass.Bracket.Web.Controllers
             return new JsonResult(new { success=true, error="" });
 		}
 
+
+        [HttpPost("/api/bracket/delete/{id}")]
+        public IActionResult Delete(long id, [FromServices]mcdaniel.ws.AspNetCore.Authentication.SASToken.ISASTokenKeyStore tokenStore)
+        {
+            var bracket =  _brackets.Get(id);
+            if (bracket == null) return NotFound();
+            var userId = User.Id();
+            if (bracket.UserId != userId && !User.IsInRole("Admin")) return StatusCode(StatusCodes.Status403Forbidden);
+            _brackets.Delete(bracket);
+            return Ok();
+		}
+
         
         [HttpGet("/api/bracket/join/{id}")]
         [AllowAnonymous]

@@ -5,6 +5,9 @@ using mcZen.Data;
 using Microsoft.Data.SqlClient;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 using System.Text;
+using Cass.Bracket.Web.Models.Api;
+using Microsoft.AspNetCore.Routing;
+using static Microsoft.ApplicationInsights.MetricDimensionNames.TelemetryContext;
 
 namespace Cass.Bracket.Web
 {
@@ -38,6 +41,7 @@ namespace Cass.Bracket.Web
 			ConnectionFactory factory = new ConnectionFactory(_options.Value.ConnectionString);
 			if (bracket.Id == 0)
 			{
+				_logger.LogDebug("Saving new bracket: {name}", bracket.Name);
 				factory.Register(Commands.Insert<long>(
 					(id) => { 
 						bracket.Id = id; 
@@ -49,7 +53,7 @@ namespace Cass.Bracket.Web
 								if (match.Opponents.Count < 1 || match.Opponents.Count>3) throw new ArgumentOutOfRangeException("Round creation error.");
 								List<SqlParameter> parameters = new List<SqlParameter>();
 								parameters.Add(new SqlParameter("@Round", 1));
-								parameters.Add(new SqlParameter("@MatchIndex", i));
+								parameters.Add(new SqlParameter("@MatchIndex", i++));
 								parameters.Add(new SqlParameter("@BracketId", id));
 								for(int mi = 1; mi <= match.Opponents.Count; mi++)
 								{
@@ -88,6 +92,7 @@ namespace Cass.Bracket.Web
 			}
 			else
 			{
+				_logger.LogDebug("Updating Bracket: {id} {name}", bracket.Id, bracket.Name);
 				factory.Register(Commands.Update("Bracket",
 					new SqlParameter("@Id", bracket.Id),
 					new SqlParameter("@Name", bracket.Name),
@@ -101,7 +106,7 @@ namespace Cass.Bracket.Web
 
 				factory.Register(new CommandReader(
 					(r) => {
-						if (r.GetInt32(0) != bracket.Opponents.Count)
+						//if (r.GetInt32(0) != bracket.Opponents.Count)
 						{
 							factory.Register(new Command("DELETE FROM BracketMatch WHERE BracketId=@BracketId", new SqlParameter("@BracketId", bracket.Id)));
 							factory.Register(new Command("DELETE FROM BracketOpponents WHERE BracketId=@BracketId", new SqlParameter("@BracketId", bracket.Id)));
@@ -146,6 +151,64 @@ namespace Cass.Bracket.Web
 
 			factory.Execute();
 			return true;
+		}
+
+		private void Initialize(SqlDataReader r, MatchOpponent opponent)
+		{
+			opponent.Opponent = new Opponent()
+			{
+				Id = r.GetValue<long>("Id", 0),
+				Name = r.GetValue<string>("Name", ""),
+				Rank = r.GetValue<short>("Rank", 0),
+				Url = r.GetValue<string>("Url", "")
+			};
+			opponent.ParentMatchId = r.GetValue<long>("parentMatchId",0);
+			opponent.Score = 0;
+		}
+
+		private void GenerateNextRound(long bracketId, ConnectionFactory factory)
+		{
+			string query = "SELECT o.Id, o.Name, o.Rank, o.Url, m.Id [parentMatchId], b.CurrentRound+1 [round] FROM BracketMatch [m] JOIN Bracket [b] ON b.CurrentRound=m.Round AND m.BracketId=b.Id JOIN BracketOpponents [o] ON o.BracketId=b.Id AND m.Winner=o.Id WHERE b.Id=@bracketId ORDER BY o.Rank ASC";
+			List<MatchOpponent> opponents = new List<MatchOpponent>();
+			int round = 0;
+			var cmd = new CommandReader(
+				(r) =>
+				{
+					round = r.GetValue<int>("round",0);
+					var opponent = new MatchOpponent();
+					Initialize(r, opponent);
+					opponents.Add(opponent);
+				}, query, System.Data.CommandType.Text, _options.Value.Timeout, mcZen.Data.Parameters.Create("bracketId", bracketId));
+			cmd.OnComplete += (s,e) =>
+			{
+				if (opponents.Count == 0) throw new ApplicationException($"Next round is not available for bracket {bracketId}");
+				if (opponents.Count == 1)
+				{
+					_logger.LogInformation($"Bracket {bracketId}: complete");
+					// bracket is complete.
+					factory.Register(new Command("usp_CompleteBracket", System.Data.CommandType.StoredProcedure, _options.Value.Timeout, Parameters.Create("@bracketId", bracketId)));
+				}
+				else
+				{
+					_logger.LogDebug($"Bracket {bracketId}: generating round {round}");
+					var nextRoundMatches = GenerateRound(opponents);
+					int i = 0;
+					foreach(var match in nextRoundMatches)
+					{
+						if (match.Opponents.Count < 1 || match.Opponents.Count>3) throw new ArgumentOutOfRangeException("Round creation error.");
+						List<SqlParameter> parameters = new List<SqlParameter>();
+						parameters.Add(new SqlParameter("@Round", round));
+						parameters.Add(new SqlParameter("@MatchIndex", i++));
+						parameters.Add(new SqlParameter("@BracketId", bracketId));
+						for(int mi = 1; mi <= match.Opponents.Count; mi++)
+						{
+							parameters.Add(new SqlParameter($"@Opponent{mi}Id", match.Opponents[mi-1].Opponent!.Id));
+						}
+						factory.Register(Commands.Insert<long>((mId) => { match.Id=mId; }, "BracketMatch", "Id", parameters.ToArray()));
+					}
+				}
+			};
+			factory.Register(cmd);
 		}
 
 		public IEnumerable<Models.Match> GetBracketRound(long id, int round)
@@ -280,6 +343,7 @@ namespace Cass.Bracket.Web
 			var userId = long.Parse(user.FindFirst(ClaimTypes.NameIdentifier)?.Value ?? "0");
 			// Check if the match is already closed.
 
+			_logger.LogDebug($"Bracket {vote.BracketId}: registering votes for user: {userId}");
 			ConnectionFactory factory = new ConnectionFactory(_options.Value.ConnectionString);
 			ScalarCommand<bool>? isComplete = null;
 			string isCompleteQuery = "SELECT 1 FROM BracketMatch WHERE BracketId=@BracketId AND Complete <= sysdatetimeoffset()";
@@ -296,6 +360,7 @@ namespace Cass.Bracket.Web
 					string column = Opponent1Id == vote.Winner ? "Opponent1Id" : Opponent2Id == vote.Winner ? "Opponent2Id" : "Opponent3Id";
 					if (vote.Id == 0) // new vote
 					{
+						_logger.LogDebug($"Bracket {vote.BracketId}: registering vote for user: {userId} match:{vote.MatchId} winner: {vote.Winner}");
 						factory.Register(Commands.Insert<long>((id) => { vote.Id = id; }, "BracketMatchVote", "Id",
 							new SqlParameter("@BracketId", vote.BracketId),
 							new SqlParameter("@MatchId", vote.MatchId),
@@ -314,6 +379,7 @@ namespace Cass.Bracket.Web
 					{
 						long existingVote = -1;
 						string? decrementColumn = null;
+						_logger.LogDebug($"Bracket {vote.BracketId}: changing vote for user: {userId} match:{vote.MatchId} winner: {vote.Winner}");
 						factory.Register(new CommandReader(
 							r =>
 							{
@@ -349,6 +415,17 @@ namespace Cass.Bracket.Web
 							new SqlParameter("@Id", vote.Id)
 						));
 					}
+					factory.Register(new ScalarCommand<int>(
+						(complete) => { 
+							if (complete==1)
+							{
+								_logger.LogDebug($"Bracket {vote.BracketId}: Round complete.");
+								GenerateNextRound(vote.BracketId, factory);
+							}
+							else _logger.LogDebug($"Bracket {vote.BracketId}: Round needs more votes.");
+						}, 
+						"usp_UpdateVoteCounts", System.Data.CommandType.StoredProcedure, new SqlParameter("@bracketId", vote.BracketId)));
+
 					return false;
 				}, "SELECT Opponent1Id, Opponent2Id, Opponent3Id, Complete, MaxUsers FROM BracketMatch JOIN Bracket ON Bracket.Id=BracketMatch.BracketId WHERE BracketMatch.Id=@MatchId AND BracketMatch.BracketId=@BracketId AND EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@BracketId AND UserId=@UserId)",
 				System.Data.CommandType.Text, _options.Value.Timeout,
@@ -359,6 +436,13 @@ namespace Cass.Bracket.Web
 
 			factory.Execute();
 			return isComplete?.Value ?? false;
+		}
+
+		public bool Delete(Models.Bracket bracket)
+		{
+			_logger.LogInformation($"Bracket {bracket.Id}: deleting");
+			ConnectionFactory.Execute(new Command("DELETE FROM Bracket WHERE Id=@Id", new SqlParameter("@Id", bracket.Id)), _options.Value.ConnectionString);
+			return true;
 		}
 
 		public BracketSearchResults Search(BracketSearch search)

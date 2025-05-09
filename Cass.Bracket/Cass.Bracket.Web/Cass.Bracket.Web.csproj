@@ -28,4 +28,8 @@
     <PackageReference Include="MSTest.TestFramework" Version="3.8.3" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Code\SQL\" />
+  </ItemGroup>
+
 </Project>

@@ -217,6 +217,9 @@ body {
 .switch.expanded .switch-container {
   float: right;
 }
+* {
+  box-sizing: border-box;
+}
 a {
   cursor: pointer;
   text-decoration: none;
