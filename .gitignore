@@ -399,3 +399,4 @@ FodyWeavers.xsd
 # JetBrains Rider
 *.sln.iml
 /Cass.Bracket/Cass.Bracket.Web/appSettings.Production.json
+/Cass.Bracket/Cass.Bracket.Web/Code/SQL/Bracket.sql
