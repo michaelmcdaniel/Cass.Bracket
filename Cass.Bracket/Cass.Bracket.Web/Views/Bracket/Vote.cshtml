@@ -5,6 +5,7 @@
 <div class="page-container">
 	<h1>{{bracket.Name}}</h1>
 	<p class="description">{{bracket.Description}}</p>
+	<h2>Round {{bracket.Round}}</h2>
 
 	<div class="match" v-for="(m,i) in bracket.Matches" :key="m.Id">
 		<h2>Match {{i+1}}</h2>

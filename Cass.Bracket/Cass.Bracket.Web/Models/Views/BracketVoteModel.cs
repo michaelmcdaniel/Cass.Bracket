@@ -7,7 +7,7 @@
         public string Description { get; set; } = string.Empty;
         public bool Joined { get; set; } = false;
 
-        public string Round { get; set; } = string.Empty;
+        public int Round { get; set; } = 1;
         public IEnumerable<Models.Match> Matches { get; set; } = new Models.Match[0];
     }
 }

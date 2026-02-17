@@ -24,8 +24,8 @@ namespace Cass.Bracket.Web.Controllers
                 Name = bracket.Name,
                 Description = bracket.Description,
                 Joined = bracket.Registered.Contains(User.Id()),
-                Round = "Round 1",
-                Matches = _brackets.GetBracketRound(id, 1)
+                Round = Math.Max(1, bracket.CurrentRound),
+                Matches = _brackets.GetBracketRound(id, Math.Max(1, bracket.CurrentRound))
             };
             return View(model);
         }
