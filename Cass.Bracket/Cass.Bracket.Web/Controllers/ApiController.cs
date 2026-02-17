@@ -143,10 +143,11 @@ namespace Cass.Bracket.Web.Controllers
             var userId = User.Id();
             bool alreadyJoined = bracket.Registered.Contains(userId);
 
-			if (bracket.Status == BracketStatus.Complete) return BadRequest("Bracket is not open");
+			if (bracket.Status == BracketStatus.Pending || bracket.Status == BracketStatus.Complete) return BadRequest("Bracket is not open");
 
 			if (!alreadyJoined && bracket.MaxUsers > 0 && bracket.Registered.Count >= bracket.MaxUsers) return BadRequest("Bracket is full");
 			if (!alreadyJoined) _brackets.Join(User!, bracket);
+			if (votes.Round != bracket.CurrentRound) return BadRequest($"Round {votes.Round} is not active.");
             if (votes.Winners == null) return Ok();
             foreach(var vote in votes.Winners)
             {

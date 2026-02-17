@@ -86,6 +86,7 @@ namespace Cass.Bracket.Web
 					new SqlParameter("@MinUsers", bracket.MinUsers),
 					new SqlParameter("@MaxUsers", bracket.MaxUsers),
 					new SqlParameter("@Status", (byte)bracket.Status),
+					new SqlParameter("@CurrentRound", bracket.CurrentRound),
 					new SqlParameter("@Cutoff", bracket.Cutoff)));
 
 				
@@ -102,6 +103,7 @@ namespace Cass.Bracket.Web
 					new SqlParameter("@MinUsers", bracket.MinUsers),
 					new SqlParameter("@MaxUsers", bracket.MaxUsers),
 					new SqlParameter("@Status", (byte)bracket.Status),
+					new SqlParameter("@CurrentRound", bracket.CurrentRound),
 					new SqlParameter("@Cutoff", bracket.Cutoff)));
 
 				factory.Register(new CommandReader(
@@ -191,6 +193,10 @@ namespace Cass.Bracket.Web
 				else
 				{
 					_logger.LogDebug($"Bracket {bracketId}: generating round {round}");
+					factory.Register(new Command("UPDATE Bracket SET CurrentRound=@Round, Status=@Status WHERE Id=@BracketId",
+						new SqlParameter("@Round", round),
+						new SqlParameter("@Status", (byte)BracketStatus.Active),
+						new SqlParameter("@BracketId", bracketId)));
 					var nextRoundMatches = GenerateRound(opponents);
 					int i = 0;
 					foreach(var match in nextRoundMatches)
@@ -283,7 +289,8 @@ namespace Cass.Bracket.Web
 						Cutoff = r.IsDBNull(5) ? DateTimeOffset.MaxValue : r.GetDateTimeOffset(5),
 						MinUsers = r.GetInt16(6),
 						MaxUsers = r.GetInt16(7),
-						Description = r.IsDBNull(8) ? "":r.GetString(8)
+						Description = r.IsDBNull(8) ? "":r.GetString(8),
+						CurrentRound = r.GetInt32(9)
 					};
 					
 					factory.Register(new CommandReader(or =>
@@ -304,7 +311,7 @@ namespace Cass.Bracket.Web
 					}, "SELECT UserId FROM BracketParticipant (nolock) WHERE BracketId=@BracketId", System.Data.CommandType.Text, _options.Value.Timeout, new SqlParameter("@BracketId", retVal.Id)));
 					return false;
 				},
-				"SELECT Id, Name, UserId, Private, Status, Cutoff, MinUsers, MaxUsers, Description FROM Bracket (nolock) WHERE Id=@Id", System.Data.CommandType.Text, _options.Value.Timeout,
+				"SELECT Id, Name, UserId, Private, Status, Cutoff, MinUsers, MaxUsers, Description, CurrentRound FROM Bracket (nolock) WHERE Id=@Id", System.Data.CommandType.Text, _options.Value.Timeout,
 				new SqlParameter("@Id", id)));
 			factory.Execute();
 			return retVal;
@@ -326,7 +333,7 @@ namespace Cass.Bracket.Web
 						factory.Register(new Command("UPDATE Bracket SET Status=2 WHERE Id=@Id", new SqlParameter("@Id", bracket.Id)));
 						_logger.LogDebug("Start game {Id}", bracket.Id);
 					}
-				}, "SELECT MaxUsers, (SELECT Count(*) FROM BracketParticipant WHERE BracketId=@Id) [participants] FROM Bracket WHERE Id=@Id AND Status=2 AND (Cutoff < '2000-01-01' OR Cutoff>sysdatetimeoffset()) AND NOT EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@Id AND UserId=@UserId) AND (MaxUsers=0 OR MaxUsers < (SELECT Count(*) FROM BracketParticipant WHERE BracketId=@Id))", System.Data.CommandType.Text, _options.Value.Timeout, new SqlParameter("@Id", bracket.Id), new SqlParameter("@UserId", user.Id())));
+				}, "SELECT MaxUsers, (SELECT Count(*) FROM BracketParticipant WHERE BracketId=@Id) [participants] FROM Bracket WHERE Id=@Id AND Status=2 AND (Cutoff < '2000-01-01' OR Cutoff>sysdatetimeoffset()) AND NOT EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@Id AND UserId=@UserId) AND (MaxUsers=0 OR MaxUsers > (SELECT Count(*) FROM BracketParticipant WHERE BracketId=@Id))", System.Data.CommandType.Text, _options.Value.Timeout, new SqlParameter("@Id", bracket.Id), new SqlParameter("@UserId", user.Id())));
 
 			var response = factory.Execute();
 			if (response.Count == 3)
@@ -346,7 +353,7 @@ namespace Cass.Bracket.Web
 			_logger.LogDebug($"Bracket {vote.BracketId}: registering votes for user: {userId}");
 			ConnectionFactory factory = new ConnectionFactory(_options.Value.ConnectionString);
 			ScalarCommand<bool>? isComplete = null;
-			string isCompleteQuery = "SELECT 1 FROM BracketMatch WHERE BracketId=@BracketId AND Complete <= sysdatetimeoffset()";
+			string isCompleteQuery = "SELECT 1 FROM BracketMatch [m] JOIN Bracket [b] ON [b].Id=[m].BracketId AND [m].Round=[b].CurrentRound WHERE [m].BracketId=@BracketId AND [m].Complete IS NOT NULL";
 			factory.Register(new CommandReader(
 				r =>
 				{
@@ -356,7 +363,7 @@ namespace Cass.Bracket.Web
 					int maxUsers = r.GetInt16(4);
 					DateTimeOffset? completed = r.IsDBNull(3) ? null : r.GetDateTimeOffset(3);
 					if (completed != null && completed <= DateTimeOffset.Now) throw new InvalidOperationException("Match is already complete.");
-					if (!(Opponent1Id == vote.Winner || Opponent2Id == vote.Winner)) throw new InvalidOperationException("Invalid winner.");
+					if (!(Opponent1Id == vote.Winner || Opponent2Id == vote.Winner || Opponent3Id == vote.Winner)) throw new InvalidOperationException("Invalid winner.");
 					string column = Opponent1Id == vote.Winner ? "Opponent1Id" : Opponent2Id == vote.Winner ? "Opponent2Id" : "Opponent3Id";
 					if (vote.Id == 0) // new vote
 					{
@@ -427,7 +434,7 @@ namespace Cass.Bracket.Web
 						"usp_UpdateVoteCounts", System.Data.CommandType.StoredProcedure, new SqlParameter("@bracketId", vote.BracketId)));
 
 					return false;
-				}, "SELECT Opponent1Id, Opponent2Id, Opponent3Id, Complete, MaxUsers FROM BracketMatch JOIN Bracket ON Bracket.Id=BracketMatch.BracketId WHERE BracketMatch.Id=@MatchId AND BracketMatch.BracketId=@BracketId AND EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@BracketId AND UserId=@UserId)",
+				}, "SELECT Opponent1Id, Opponent2Id, Opponent3Id, Complete, MaxUsers FROM BracketMatch JOIN Bracket ON Bracket.Id=BracketMatch.BracketId WHERE BracketMatch.Id=@MatchId AND BracketMatch.BracketId=@BracketId AND BracketMatch.Round=Bracket.CurrentRound AND EXISTS(SELECT * FROM BracketParticipant WHERE BracketId=@BracketId AND UserId=@UserId)",
 				System.Data.CommandType.Text, _options.Value.Timeout,
 				new SqlParameter("@MatchId", vote.MatchId),
 				new SqlParameter("@BracketId", vote.BracketId),

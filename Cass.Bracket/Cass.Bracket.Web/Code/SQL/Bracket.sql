@@ -299,7 +299,7 @@ BEGIN
 	-- add chaos monkey to bracket matches if odd number of participants.
 
 	DECLARE @UseChaosMonkey int = 0
-	SELECT @UseChaosMonkey = (CASE WHEN COUNT(*) % 2 = 0 THEN 1 ELSE 0 END) FROM BracketParticipant [user] WHERE [user].BracketId=@bracketId AND [user].Evicted IS NULL
+	SELECT @UseChaosMonkey = (CASE WHEN COUNT(*) % 2 = 1 THEN 1 ELSE 0 END) FROM BracketParticipant [user] WHERE [user].BracketId=@bracketId AND [user].Evicted IS NULL
 	IF (@UseChaosMonkey = 1) 
 	BEGIN
 		UPDATE BracketMatch 
@@ -348,6 +348,7 @@ BEGIN
 	DECLARE @completed int
 	DECLARE @total int
 	SELECT @total = count(*), @completed = SUM(CASE WHEN Complete IS NOT NULL THEN 1 ELSE 0 END) FROM BracketMatch [match] JOIN Bracket [bracket] ON [match].BracketId=[bracket].Id AND [match].[Round]=[bracket].[CurrentRound] WHERE BracketId=@bracketId
+
 
 	SELECT CASE WHEN (@total = @completed) THEN 1 ELSE 0 END AS RoundComplete;
 END

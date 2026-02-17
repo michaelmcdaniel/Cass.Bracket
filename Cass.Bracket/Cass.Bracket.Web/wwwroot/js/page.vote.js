@@ -20,7 +20,7 @@ window.page.vue = {
 		canCastVote: function() {
 			var retVal = true;
 			for(var i = 0; retVal && i < this.bracket.Matches.length; i++) {
-				if (this.bracket.Matches[i].Winner <= 0) retVal = false;
+				if (this.bracket.Matches[i].Winner <= 0) return false;
 			}
 			return retVal;
 		}
@@ -31,14 +31,14 @@ window.page.vue = {
 		cast: async function() {
 			var me = this, selections ={};
 			for(var i = 0; i < this.bracket.Matches.length; i++) {
-				if (this.bracket.Matches[i].Winner <= 0) retVal = false;
+				if (this.bracket.Matches[i].Winner <= 0) return false;
 				selections[this.bracket.Matches[i].Id] = this.bracket.Matches[i].Winner;
 			}
 			await fetch('/api/bracket/cast/'+this.bracket.Id, {
 				method: 'post', 
 				headers: { "Content-Type": "application/json" }, 
 				body: JSON.stringify({
-					Round: me.Round,
+					Round: me.bracket.Round,
 					Winners: selections
 				})
 			}).then(async r => {
@@ -46,14 +46,8 @@ window.page.vue = {
 					return r.json()
 				}
                     if (r.status == 400) {
-                        var data = await r.json();
-                        var error = '';
-                        var i = 0;
-                        for(var prop in data.errors) {
-                            for (var j = 0; j < data.errors[prop].length; j++) error += (i == 0 && j == 0 ? '' : '\n') + prop + ": " + data.errors[prop][j];
-                            i++;
-                        }
-                        return { success: false, error: error };
+                        var text = await r.text();
+                        return { success: false, error: text || "Unable to cast vote." };
                     } else {
 						return {success: false, error: r.status + ' something bad...' }
 					}

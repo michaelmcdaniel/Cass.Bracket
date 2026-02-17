@@ -24,7 +24,9 @@ namespace Cass.Bracket.Web.Models
 
         public DateTimeOffset Cutoff { get; set; }
 
-        public BracketStatus Status { get; set; } = BracketStatus.Pending;
+		public BracketStatus Status { get; set; } = BracketStatus.Pending;
+
+		public int CurrentRound { get; set; } = 1;
 
 		public List<long> Registered { get; set; } = new List<long>();
     }
